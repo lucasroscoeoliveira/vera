@@ -285,6 +285,10 @@ tr.click:hover td{background:var(--accent-tint)}
 .login-side{display:grid;place-items:center;padding-block:40px;padding-inline:clamp(16px,5vw,64px)}
 .login-box{width:min(380px,100%)}
 .login-side{position:relative}
+.rt{display:inline-flex;align-items:center;gap:6px;vertical-align:middle;margin-left:4px}
+.rt img{width:18px;height:18px;display:block}
+.rt span{font-weight:800;color:#2a1822;letter-spacing:-.01em}
+.rt em{font-style:normal;color:#1a56db}
 .powered{position:absolute;left:0;right:0;bottom:20px;margin:0;text-align:center;font-size:12px;color:var(--ink-2);letter-spacing:.02em}
 .powered b{color:var(--ink);font-weight:700}
 @media (max-width:860px){.powered{position:static;margin-top:28px}}
@@ -1191,7 +1195,7 @@ function renderLogin() {
         </div>
         <p class="legal">Ao continuar, você concorda com os Termos de Uso e a Política de Privacidade.</p>
       </div>
-      <p class="powered">powered by <b>Revtriever</b></p>
+      <p class="powered">powered by <span class="rt"><img src="revtriever-mark.svg" alt="" width="18" height="18"><span>Rev<em>triever</em></span></span></p>
     </div>
   </div>`;
 }
