@@ -4,9 +4,12 @@ A Vera usa a mesma stack, os mesmos padrões de projeto e as mesmas skills de ag
 
 ## Organização dos repositórios
 
+Todos públicos, na organização [`revtriever-vera`](https://github.com/revtriever-vera).
+
 | Repositório | Papel |
 | --- | --- |
 | `vera` (este) | Documentação de produto, decisões e protótipo |
+| `.github` | Skills de agente (fonte única, sincronizada para os repositórios de código) e templates de issue/PR |
 | `vera-api` | Back-end |
 | `vera-fe` | Aplicação web |
 | `vera-site` | Landing page |
@@ -49,7 +52,8 @@ Dois ambientes, como no GetCart: **dev** e **prod**. O de dev existe no código 
 
 - **Idioma por público:** código, identificadores, rotas, logs e skills em inglês; regras de negócio, decisões, commits, issues e PRs em pt-BR; interface do usuário via i18n.
 - **Commits** no padrão Conventional Commits (commitlint + husky + lint-staged)
-- **Prettier + ESLint** em todos os repositórios; **SonarQube** na CI
+- **Prettier + ESLint** em todos os repositórios; **SonarCloud** na CI (grátis para projeto público)
+- **CI em `ubuntu-latest`**: repositório público não pode usar o runner self-hosted da Revtriever
 - **Skills de agente** em `.claude/skills/` de cada repositório, adaptadas das skills do GetCart
 
 ## Ponto de atenção: hospedagem própria
