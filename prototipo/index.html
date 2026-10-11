@@ -284,6 +284,10 @@ tr.click:hover td{background:var(--accent-tint)}
 .photo-mark{position:absolute;left:28px;bottom:28px;width:56px;height:56px;border-radius:16px;background:rgba(255,255,255,.18);backdrop-filter:blur(6px);display:grid;place-items:center}
 .login-side{display:grid;place-items:center;padding-block:40px;padding-inline:clamp(16px,5vw,64px)}
 .login-box{width:min(380px,100%)}
+.login-side{position:relative}
+.powered{position:absolute;left:0;right:0;bottom:20px;margin:0;text-align:center;font-size:12px;color:var(--ink-2);letter-spacing:.02em}
+.powered b{color:var(--ink);font-weight:700}
+@media (max-width:860px){.powered{position:static;margin-top:28px}}
 .login-box h2{font-family:var(--f-display);font-size:30px;margin:36px 0 6px;letter-spacing:-.025em}
 .social{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;padding:13px 16px;border-radius:12px;border:1px solid var(--line);background:var(--surface);font-weight:600;font-size:15px;cursor:pointer;transition:background .15s,border-color .15s}
 .social:hover{background:var(--surface-2);border-color:#e3c9d6}
@@ -1187,6 +1191,7 @@ function renderLogin() {
         </div>
         <p class="legal">Ao continuar, você concorda com os Termos de Uso e a Política de Privacidade.</p>
       </div>
+      <p class="powered">powered by <b>Revtriever</b></p>
     </div>
   </div>`;
 }

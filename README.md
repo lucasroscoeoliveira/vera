@@ -15,7 +15,7 @@
 | [`docs/decisoes.md`](docs/decisoes.md) | Registro das decisões de produto, com o motivo de cada uma |
 | [`prototipo/`](prototipo/) | Protótipo navegável em um único HTML, com dados de exemplo |
 
-O trabalho está organizado no [Project da Vera](https://github.com/users/lucasroscoeoliveira/projects), um card por entrega.
+O trabalho está organizado no [Project da Vera](https://github.com/users/lucasroscoeoliveira/projects/1), um card por entrega.
 
 ## Protótipo
 
