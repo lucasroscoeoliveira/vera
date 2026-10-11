@@ -20,7 +20,7 @@ A Vera usa a mesma stack, os mesmos padrões de projeto e as mesmas skills de ag
 - **BullMQ + Redis** para filas e jobs agendados (cotações diárias, sincronização de extratos)
 - **pino + OpenTelemetry** para logs, traces e métricas; **PostHog** para produto
 - **Vitest + Testcontainers** (Postgres, Redis) para testes de integração
-- **AWS CDK** para infraestrutura
+- **AWS CDK** para infraestrutura, no mesmo formato do GetCart
 
 ## Front-end (`vera-fe`)
 
@@ -36,6 +36,15 @@ A Vera usa a mesma stack, os mesmos padrões de projeto e as mesmas skills de ag
 ## Landing page (`vera-site`)
 
 - **Astro**, como os sites dos outros produtos
+
+## Ambientes
+
+Diferente do GetCart, a Vera tem **um ambiente só: produção**. Não existe ambiente de dev.
+
+- Infraestrutura em AWS CDK, do mesmo jeito que o GetCart, mas com uma única stack de produção.
+- Uma branch principal (`main`); sem branch `development` e sem o fluxo de mergeback.
+- CI com um único workflow de deploy (`deploy-prod`); os workflows `deploy-dev` e `mergeback-development` do GetCart não são copiados.
+- Validação antes de produção acontece localmente (Docker Compose) e nos testes da CI.
 
 ## Convenções gerais
 
