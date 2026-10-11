@@ -131,7 +131,6 @@ Como o objetivo é relevância, o concorrente que importa é outro open source g
 - Qual a qualidade da categorização que a Pluggy já entrega?
 - O Ghostfolio ou outro open source já faz carteira-alvo em duas camadas com foco Brasil?
 - O nome Vera está livre (domínio, INPI, GitHub)?
-- Qual a stack técnica?
 
 ## Fontes
 

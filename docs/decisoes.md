@@ -6,6 +6,7 @@ Registro das decisões tomadas na fase de design, com o motivo de cada uma. Deci
 
 | Decisão | Motivo |
 | --- | --- |
+| Stack, padrões de projeto e skills **iguais aos do GetCart** | Reaproveita o que já funciona e o que o time e os agentes já conhecem. Detalhes em [`stack.md`](stack.md). |
 | Nome **Vera** | Nome feminino, curto, que remete a "verdadeiro": o retrato real da carteira contra o ideal. "Prumo" foi descartado por conflito com a Prumo Logística. Disponibilidade de domínio e INPI ainda não checada. |
 | Licença **AGPL-3.0** | Impede que alguém feche o código e ofereça como serviço sem publicar as mudanças. |
 | Open source e gratuito | O objetivo é relevância e marca pessoal, não receita. |
