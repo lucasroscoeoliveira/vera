@@ -1,0 +1,1373 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Protótipo Vera</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=Public+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: app de duas colunas, navegação com ícones à esquerda e área de trabalho à direita; tema claro com base rosa; no celular a navegação vira faixa rolável no topo */
+:root{
+  color-scheme:light;
+  --bg:#fbf5f8; --surface:#ffffff; --surface-2:#f7ecf1; --ink:#2a1822; --ink-2:#7b6270; --line:#f0dce6;
+  --accent:#e0407b; --accent-strong:#bf2a62; --accent-ink:#ffffff; --accent-soft:#fde3ee; --accent-tint:#fff0f6;
+  --good:#1b8f63; --good-soft:#dbf2e7; --warn:#c2620d; --warn-soft:#fdead6; --bad:#c32d3a; --bad-soft:#fbdfe2;
+  --c-rf_pos:#5868d6; --c-rf_pre:#8b78e3; --c-rf_ipca:#b45bd0; --c-acoes_br:#e0407b; --c-fii:#ef8657; --c-acoes_eua:#22968a; --c-reits:#e6a92c; --c-cripto:#6d3a5f;
+  --f-display:"Bricolage Grotesque","Helvetica Neue",Arial,sans-serif;
+  --f-body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --r:14px;
+  --shadow:0 1px 2px rgba(120,30,70,.06),0 6px 20px rgba(120,30,70,.06);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14.5px;line-height:1.5}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+svg.i{width:1.1em;height:1.1em;flex:none;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.18em}
+.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.muted{color:var(--ink-2)}
+a{color:var(--accent-strong);font-weight:600}
+.app{display:grid;grid-template-columns:248px minmax(0,1fr);min-height:100%}
+.side{background:var(--surface);border-right:1px solid var(--line);padding:22px 14px;display:flex;flex-direction:column;gap:22px;position:sticky;top:env(safe-area-inset-top,0px);height:100vh;overflow:auto}
+.brand{display:flex;align-items:center;gap:10px;padding:0 8px}
+.logo{width:36px;height:36px;border-radius:11px;background:var(--accent);display:grid;place-items:center;flex:none;box-shadow:0 4px 12px rgba(224,64,123,.35)}
+.brand b{font-family:var(--f-display);font-size:25px;font-weight:700;letter-spacing:-.045em;line-height:.9}
+.brand b::after{content:".";color:var(--accent)}
+.brand small{display:block;font-size:11px;color:var(--ink-2);letter-spacing:.04em;text-transform:uppercase;margin-top:3px}
+.navgroup{display:flex;flex-direction:column;gap:3px}
+.navgroup h6{margin:0 0 6px;padding:0 10px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);font-weight:700}
+.nav{display:flex;align-items:center;gap:11px;padding:9px 10px;border-radius:10px;color:var(--ink);font-weight:500;border:0;background:none;cursor:pointer;text-align:left;width:100%}
+.nav .ico{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:var(--surface-2);color:var(--ink-2);flex:none}
+.nav:hover{background:var(--accent-tint)}
+.nav[aria-current="page"]{background:var(--accent-soft);font-weight:600}
+.nav[aria-current="page"] .ico{background:var(--accent);color:#fff}
+.nav .count{margin-left:auto;font-size:11px;background:var(--warn);color:#fff;border-radius:99px;padding:0 7px;font-weight:700}
+.proto{margin-top:auto;font-size:12px;color:var(--ink-2);padding:12px;border-radius:12px;background:var(--accent-tint);display:flex;gap:8px}
+.proto svg{color:var(--accent);margin-top:2px}
+.main{min-width:0;padding-block:26px 60px;padding-inline:clamp(16px,3.5vw,44px)}
+.head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:14px 24px;margin-bottom:22px}
+.head h1{font-family:var(--f-display);font-size:clamp(26px,3.2vw,34px);letter-spacing:-.025em;line-height:1.05;margin:0;text-wrap:balance;display:flex;align-items:center;gap:12px}
+.head h1 .hico{width:42px;height:42px;border-radius:13px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;flex:none}
+.head h1 .hico svg{width:22px;height:22px}
+.head p{margin:8px 0 0;color:var(--ink-2);max-width:64ch}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.seg{display:inline-flex;background:var(--surface-2);border-radius:10px;padding:3px;gap:2px}
+.seg button{border:0;background:none;padding:6px 12px;border-radius:8px;cursor:pointer;font-weight:600;font-size:13px;color:var(--ink-2);display:inline-flex;align-items:center;gap:6px}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--accent-strong);box-shadow:0 1px 3px rgba(120,30,70,.15)}
+.grid{display:grid;gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px;min-width:0;box-shadow:var(--shadow)}
+.card h2{font-family:var(--f-display);font-size:18px;margin:0 0 4px;letter-spacing:-.01em;display:flex;align-items:center;gap:8px}
+.card h2 svg{color:var(--accent)}
+.card h2 + p{margin:0 0 16px;color:var(--ink-2);font-size:13.5px}
+.hero{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:16px}
+.herocard{background:linear-gradient(140deg,var(--accent-soft) 0%,var(--surface) 62%);position:relative;overflow:hidden}
+.herocard .deco{position:absolute;right:-24px;top:-24px;width:150px;height:150px;color:var(--accent);opacity:.12}
+.herocard .deco svg{width:100%;height:100%;stroke-width:1.4}
+.big{font-family:var(--f-display);font-size:clamp(32px,4.6vw,46px);letter-spacing:-.03em;line-height:1;margin:8px 0 14px;font-variant-numeric:tabular-nums}
+.label{font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-2);font-weight:700;display:flex;align-items:center;gap:6px}
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.pill{display:inline-flex;align-items:center;gap:7px;background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:5px 12px;font-size:13px}
+.pill svg{color:var(--accent)}
+.pill b{font-weight:700}
+.callout{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:16px;padding:12px 14px;border-radius:12px;background:var(--surface);border:1px dashed var(--accent)}
+.callout svg{color:var(--accent)}
+.stackwrap{display:grid;gap:12px}
+.stackrow{display:grid;grid-template-columns:52px minmax(0,1fr);align-items:center;gap:10px;font-size:12.5px;color:var(--ink-2);font-weight:600}
+.stack{display:flex;height:30px;border-radius:9px;overflow:hidden;background:var(--surface-2)}
+.stack span{display:block;height:100%;border-right:2px solid var(--surface);cursor:pointer;transition:filter .15s}
+.stack span:hover,.stack span.hl{filter:brightness(1.12) saturate(1.1)}
+.stack.meta span{opacity:.5}
+.stack.meta span:hover{opacity:.8}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;color:var(--ink-2);margin-top:12px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.hint{font-size:12px;color:var(--ink-2);margin-top:10px;display:flex;align-items:center;gap:6px}
+.tablewrap{overflow-x:auto;margin:0 -4px}
+table{width:100%;border-collapse:collapse;min-width:560px}
+th{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);font-weight:700;text-align:left;padding:8px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+th.r,td.r{text-align:right}
+tr.click{cursor:pointer}
+tr.click:hover td{background:var(--accent-tint)}
+.tile{width:32px;height:32px;border-radius:10px;display:inline-grid;place-items:center;flex:none}
+.tile svg{width:17px;height:17px}
+.who{display:flex;align-items:center;gap:11px;min-width:0}
+.cname{font-weight:600}
+.sub{display:block;font-size:12px;color:var(--ink-2);font-weight:400}
+.sw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.gauge{position:relative;height:10px;background:var(--surface-2);border-radius:5px;min-width:120px;cursor:pointer}
+.gauge .fill{position:absolute;left:0;top:0;bottom:0;border-radius:5px}
+.gauge .tgt{position:absolute;top:-4px;bottom:-4px;width:3px;background:var(--ink);border-radius:2px}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;border-radius:99px;padding:3px 10px;white-space:nowrap}
+.chip.ok{background:var(--good-soft);color:var(--good)}
+.chip.up{background:var(--warn-soft);color:var(--warn)}
+.chip.down{background:var(--accent-soft);color:var(--accent-strong)}
+.chip.bad{background:var(--bad-soft);color:var(--bad)}
+.chip.plain{background:var(--surface-2);color:var(--ink-2);font-weight:600}
+.btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);padding:8px 14px;border-radius:10px;cursor:pointer;font-weight:600;font-size:13.5px}
+.btn:hover{background:var(--accent-tint);border-color:var(--accent-soft)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);box-shadow:0 4px 12px rgba(224,64,123,.28)}
+.btn.primary:hover{background:var(--accent-strong)}
+.btn.ghost{border-color:transparent;background:none}
+.btn.sm{padding:5px 11px;font-size:12.5px}
+.btn[disabled]{opacity:.45;cursor:not-allowed;box-shadow:none}
+.iconbtn{border:0;background:none;cursor:pointer;color:var(--ink-2);padding:6px;border-radius:8px;display:inline-grid;place-items:center}
+.iconbtn:hover{background:var(--bad-soft);color:var(--bad)}
+.field{display:grid;gap:6px}
+.field label{font-size:12.5px;font-weight:700;color:var(--ink-2)}
+.input,select.input{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:9px 11px;min-width:0;width:100%}
+.input:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
+.input.num{text-align:right}
+.input.tiny{width:76px;padding:5px 8px}
+.searchbox{position:relative}
+.searchbox svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--ink-2)}
+.searchbox .input{padding-left:38px;font-size:15px;padding-block:11px}
+.stepper{display:inline-flex;align-items:center;gap:4px}
+.stepper button{width:28px;height:28px;border-radius:8px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-weight:700;color:var(--accent-strong)}
+.stepper button:hover{background:var(--accent-tint)}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.between{justify-content:space-between}
+.note{font-size:13px;color:var(--ink-2);background:var(--surface-2);border-radius:10px;padding:10px 12px;display:flex;gap:9px;align-items:flex-start}
+.note > svg{color:var(--accent);margin-top:2px}
+.note b{color:var(--ink)}
+.back{border:0;background:none;color:var(--accent-strong);font-weight:700;cursor:pointer;padding:0;margin-bottom:12px;display:inline-flex;align-items:center;gap:4px}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;box-shadow:var(--shadow);display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;align-items:center}
+.kpi .tile{grid-row:span 2}
+.kpi .v{font-family:var(--f-display);font-size:22px;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.1}
+.kpi.focus{background:linear-gradient(140deg,var(--accent-soft),var(--surface) 75%);border-color:var(--accent)}
+.hbar{display:grid;grid-template-columns:minmax(150px,230px) minmax(0,1fr) 110px;align-items:center;gap:14px;padding:9px 0;border-bottom:1px solid var(--line)}
+.hbar:last-child{border-bottom:0}
+.hbar .track{height:12px;background:var(--surface-2);border-radius:6px;position:relative;cursor:pointer}
+.hbar .track span{position:absolute;left:0;top:0;bottom:0;border-radius:6px;background:#b9a3af}
+.hbar .track span.flex{background:var(--accent)}
+.hbar .track span.unc{background:var(--warn)}
+.hbar .track i{position:absolute;top:-4px;bottom:-4px;width:3px;border-radius:2px;background:var(--ink)}
+.tog{border:0;background:var(--surface-2);color:var(--ink-2);font-size:10.5px;font-weight:700;border-radius:99px;padding:1px 8px;cursor:pointer;text-transform:uppercase;letter-spacing:.05em}
+.tog.on{background:var(--accent-soft);color:var(--accent-strong)}
+.tx{display:grid;grid-template-columns:36px 54px minmax(0,1fr) auto auto;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)}
+.tx:last-child{border-bottom:0}
+.tx .d{font-size:12.5px;color:var(--ink-2)}
+.tx .m{font-weight:600;overflow-wrap:anywhere}
+.tx.unc{background:linear-gradient(90deg,var(--warn-soft),transparent 75%);margin:0 -12px;padding-inline:12px;border-radius:12px}
+.fix{grid-column:3 / -1;display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:2px}
+.howto{display:grid;gap:0;margin:0;padding:0;list-style:none;counter-reset:s}
+.howto > li{counter-increment:s;display:grid;grid-template-columns:40px minmax(0,1fr);gap:14px;padding-bottom:18px;position:relative}
+.howto > li::before{content:counter(s);width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;font-weight:700;display:grid;place-items:center;font-size:15px;position:relative;z-index:1}
+.howto > li:not(:last-child)::after{content:"";position:absolute;left:17px;top:38px;bottom:0;width:2px;background:var(--accent-soft)}
+.howto > li.done::before{content:"✓";background:var(--good)}
+.howto h4{margin:6px 0 4px;font-size:15px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.howto ul{margin:6px 0 0;padding-left:18px;color:var(--ink-2);font-size:13.5px;display:grid;gap:4px}
+.howto .url{display:inline-flex;align-items:center;gap:6px;font-family:var(--f-mono);font-size:12.5px;background:var(--accent-tint);border:1px solid var(--accent-soft);border-radius:8px;padding:3px 9px;text-decoration:none;color:var(--accent-strong);font-weight:500}
+.howto .url:hover{background:var(--accent-soft)}
+.kbd{font-family:var(--f-mono);font-size:12px;background:var(--surface-2);border:1px solid var(--line);border-radius:6px;padding:0 6px;color:var(--ink)}
+.warnbox{background:var(--warn-soft);color:var(--warn);border-radius:10px;padding:8px 12px;font-size:13px;display:flex;gap:8px;align-items:flex-start;margin-top:8px}
+.warnbox b{color:var(--ink)}
+.conn{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.conn:last-child{border-bottom:0}
+.bank{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-weight:700;font-size:12px;color:#fff;flex:none}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+.split{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:16px;align-items:start}
+.modal{position:fixed;inset:0;background:rgba(60,15,38,.42);backdrop-filter:blur(3px);display:grid;place-items:center;padding:16px;z-index:20}
+.sheet{background:var(--surface);border-radius:20px;width:min(980px,100%);height:min(720px,calc(100% - 32px));display:grid;grid-template-rows:auto minmax(0,1fr) auto;box-shadow:0 30px 80px rgba(60,15,38,.3);overflow:hidden}
+.sheet-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:18px 22px;border-bottom:1px solid var(--line)}
+.sheet-head h3{font-family:var(--f-display);margin:0;font-size:22px;display:flex;align-items:center;gap:10px}
+.sheet-body{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);min-height:0}
+.sheet-left{padding:18px 22px;overflow:auto;display:flex;flex-direction:column;gap:12px;min-height:0}
+.sheet-right{padding:18px 22px;overflow:auto;background:var(--accent-tint);border-left:1px solid var(--line)}
+.sheet-foot{display:flex;justify-content:flex-end;gap:10px;padding:14px 22px;border-top:1px solid var(--line)}
+.filters{display:flex;flex-wrap:wrap;gap:6px}
+.fchip{border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:4px 11px;font-size:12.5px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;color:var(--ink-2)}
+.fchip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.results{display:grid;gap:6px}
+.result{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 12px;cursor:pointer}
+.result:hover{border-color:var(--accent-soft);background:var(--accent-tint)}
+.result[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+.preview{display:grid;gap:14px}
+.preview .ptitle{display:flex;align-items:center;gap:12px}
+.preview .ptitle .tile{width:46px;height:46px;border-radius:14px}
+.preview .ptitle .tile svg{width:22px;height:22px}
+.preview .ptitle b{font-family:var(--f-display);font-size:22px;display:block;line-height:1.1}
+.pvalue{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}
+.pvalue .big{font-size:30px;margin:4px 0 2px}
+.empty{display:grid;place-items:center;text-align:center;height:100%;color:var(--ink-2);gap:10px;padding:30px}
+.empty svg{width:44px;height:44px;color:var(--accent);opacity:.5;stroke-width:1.5}
+.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;font-weight:600;font-size:13.5px;z-index:30;box-shadow:0 10px 24px rgba(60,15,38,.3);display:flex;gap:8px;align-items:center}
+.toast svg{color:#ff9cc2}
+.tip{position:fixed;z-index:40;pointer-events:none;background:var(--ink);color:#fff;border-radius:12px;padding:10px 12px;font-size:12.5px;min-width:190px;box-shadow:0 12px 28px rgba(60,15,38,.3)}
+.tip .t{font-weight:700;font-size:13.5px;display:flex;align-items:center;gap:7px;margin-bottom:6px}
+.tip .t i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.tip .l{display:flex;justify-content:space-between;gap:16px;color:#e9d6df}
+.tip .l b{color:#fff;font-family:var(--f-mono);font-weight:500}
+.tip .s{margin-top:7px;padding-top:7px;border-top:1px solid rgba(255,255,255,.15);font-weight:600}
+.alloc{display:grid;gap:12px}
+.allocclass{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--surface);box-shadow:var(--shadow)}
+.allocclass header{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:12px 14px}
+.allocclass header .amt{margin-left:auto;font-family:var(--f-display);font-size:20px;color:var(--accent-strong)}
+.allocasset{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:14px;padding:9px 14px 9px 60px;border-top:1px solid var(--line);font-size:13.5px}
+.onb{position:fixed;inset:0;z-index:15;background:radial-gradient(ellipse 80% 60% at 0% 0%,var(--accent-soft),transparent 70%),radial-gradient(ellipse 60% 50% at 100% 100%,#fff0e8,transparent 70%),var(--bg);overflow:auto;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px)}
+.onb-top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 20px;padding:16px clamp(16px,4vw,40px)}
+.onb-prog{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.onb-prog span{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--ink-2)}
+.onb-prog span b{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--surface);border:1px solid var(--line);font-size:12px}
+.onb-prog span.cur{color:var(--ink)}
+.onb-prog span.cur b{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
+.onb-prog span.done b{background:var(--good);color:#fff;border-color:var(--good)}
+.onb-prog span.skip b{background:var(--surface-2);color:var(--ink-2)}
+.onb-prog i{width:22px;height:2px;background:var(--line);border-radius:1px}
+.onb-body{flex:1;padding-block:8px 48px;padding-inline:clamp(16px,4vw,40px);display:grid;justify-items:center;align-content:start}
+.onb-grid{width:min(1100px,100%);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:32px;align-items:start;margin-top:12px}
+.eyebrow{display:inline-flex;gap:6px;align-items:center;font-size:11.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--accent-strong);background:var(--surface);border:1px solid var(--accent-soft);border-radius:99px;padding:4px 11px}
+.onb h2.display{font-family:var(--f-display);font-size:clamp(30px,4.2vw,46px);letter-spacing:-.035em;line-height:1.03;margin:14px 0 14px;text-wrap:balance}
+.onb h2.display em{font-style:normal;color:var(--accent)}
+.lead{font-size:16px;color:var(--ink-2);max-width:54ch;margin:0 0 22px;line-height:1.55}
+.whyh{font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-2);margin:0 0 12px}
+.why{display:grid;gap:14px;margin:0 0 20px;padding:0;list-style:none}
+.why li{display:grid;grid-template-columns:42px minmax(0,1fr);gap:13px;align-items:start}
+.why li .tile{width:42px;height:42px;border-radius:13px;background:var(--surface);color:var(--accent);border:1px solid var(--accent-soft);box-shadow:var(--shadow)}
+.why b{display:block;font-size:15px;margin-top:1px}
+.why .d{color:var(--ink-2);font-size:13.5px}
+.onb-foot{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;margin-top:20px;padding-top:16px;border-top:1px solid var(--line)}
+.trust{display:flex;flex-wrap:wrap;gap:8px;margin-top:24px}
+.pathcards{display:grid;gap:12px}
+.pathcard{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:14px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:var(--shadow)}
+.pathcard .tile{width:52px;height:52px;border-radius:16px}
+.pathcard .tile svg{width:24px;height:24px}
+.pathcard b{display:block;font-size:16px}
+.pathcard .d{color:var(--ink-2);font-size:13.5px}
+.ministeps{margin:0;padding-left:20px;display:grid;gap:7px;font-size:13.5px;color:var(--ink-2)}
+.ministeps b{color:var(--ink)}
+.popular{display:flex;flex-wrap:wrap;gap:6px}
+.added{display:grid;gap:0}
+.added .item{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
+.added .item:last-child{border-bottom:0}
+.summary{display:grid;gap:12px;margin:8px 0 0}
+.summary .srow{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:14px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 16px;box-shadow:var(--shadow)}
+.summary .srow .tile{width:44px;height:44px;border-radius:13px}
+.done-hero{width:min(720px,100%);text-align:center;margin-top:20px}
+.done-hero .burst{width:84px;height:84px;border-radius:26px;background:var(--accent);color:#fff;display:grid;place-items:center;margin:0 auto 6px;box-shadow:0 14px 34px rgba(224,64,123,.35)}
+.done-hero .burst svg{width:40px;height:40px}
+.side-onb{border:0;background:none;color:var(--accent-strong);font-weight:700;cursor:pointer;padding:0;margin-top:6px;font-size:12px;display:inline-flex;gap:5px;align-items:center}
+@media (max-width:900px){.onb-grid{grid-template-columns:minmax(0,1fr)}.onb-prog span:not(.cur) em{display:none}}
+.typegrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
+.typecard{position:relative;display:grid;gap:10px;align-content:start;text-align:left;border:1px solid var(--line);border-radius:16px;padding:16px;background:var(--surface);cursor:pointer;transition:border-color .15s,box-shadow .15s,transform .15s}
+.typecard:hover{border-color:var(--accent);box-shadow:0 8px 22px rgba(224,64,123,.14);transform:translateY(-2px)}
+.typecard .tile{width:46px;height:46px;border-radius:14px}
+.typecard .tile svg{width:22px;height:22px}
+.typecard b{display:block;font-size:15px;line-height:1.25}
+.typecard .d{display:block;color:var(--ink-2);font-size:12.5px;margin-top:2px}
+.typecard .cnt{position:absolute;top:12px;right:12px;background:var(--good);color:#fff;font-size:11px;font-weight:700;border-radius:99px;padding:1px 8px}
+.sheet-single{padding:22px;overflow:auto;min-height:0}
+@media (prefers-reduced-motion:reduce){.typecard{transition:none}.typecard:hover{transform:none}}
+.onb-grid.wide{width:min(1320px,100%);grid-template-columns:minmax(0,.8fr) minmax(0,1.75fr)}
+.addsplit{display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,270px);gap:16px;align-items:start}
+.addsplit .typegrid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.wallet{background:var(--accent-tint);border:1px solid var(--line);border-radius:14px;padding:14px;min-width:0}
+.wallet .added .item{grid-template-columns:minmax(0,1fr) auto;row-gap:2px}
+.wallet .added .item .num{grid-column:1;grid-row:2;padding-left:43px;font-size:12.5px;color:var(--ink-2)}
+.wallet .added .item .iconbtn{grid-column:2;grid-row:1 / span 2}
+.wallet .empty{padding:18px 6px !important}
+@media (max-width:1180px){.onb-grid.wide{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:680px){.addsplit{grid-template-columns:minmax(0,1fr)}}
+.login{position:fixed;inset:0;z-index:17;overflow:auto;background:var(--surface);display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)}
+.login-photo{position:relative;overflow:hidden;min-height:100%}
+.photo-slot{position:absolute;inset:0}
+.photo-slot img{width:100%;height:100%;object-fit:cover;object-position:55% 30%;max-width:none;display:block}
+.photo-ph{position:absolute;inset:0;display:grid;place-content:center;justify-items:center;gap:10px;color:#fff;font-weight:600;font-size:13px;background:linear-gradient(160deg,#f7b6cd,#e0407b 55%,#8c1f4a);text-align:center;padding:24px}
+.photo-ph svg{width:40px;height:40px;opacity:.8}
+.photo-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(236,96,150,.55) 0%,rgba(224,64,123,.6) 55%,rgba(150,30,80,.75) 100%);mix-blend-mode:multiply}
+.photo-overlay::after{content:"";position:absolute;inset:0;background:rgba(253,190,216,.24);mix-blend-mode:screen}
+.photo-mark{position:absolute;left:28px;bottom:28px;width:56px;height:56px;border-radius:16px;background:rgba(255,255,255,.18);backdrop-filter:blur(6px);display:grid;place-items:center}
+.login-side{display:grid;place-items:center;padding-block:40px;padding-inline:clamp(16px,5vw,64px)}
+.login-box{width:min(380px,100%)}
+.login-box h2{font-family:var(--f-display);font-size:30px;margin:36px 0 6px;letter-spacing:-.025em}
+.social{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;padding:13px 16px;border-radius:12px;border:1px solid var(--line);background:var(--surface);font-weight:600;font-size:15px;cursor:pointer;transition:background .15s,border-color .15s}
+.social:hover{background:var(--surface-2);border-color:#e3c9d6}
+.social.fb{background:#1877f2;border-color:#1877f2;color:#fff}
+.social.fb:hover{background:#166fe5}
+.social svg{width:20px;height:20px;flex:none}
+.legal{font-size:12px;color:var(--ink-2);margin:20px 0 0;line-height:1.5}
+.userbox{display:flex;align-items:center;gap:10px;padding:10px;border-radius:12px;border:1px solid var(--line)}
+.avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(140deg,var(--accent),#f08a5d);color:#fff;display:grid;place-items:center;font-weight:700;flex:none}
+.userbox .meta{min-width:0;flex:1}
+.userbox .meta b{display:block;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.userbox .meta span{display:block;font-size:11.5px;color:var(--ink-2)}
+.logout{border:0;background:none;color:var(--ink-2);cursor:pointer;padding:6px;border-radius:8px;display:grid;place-items:center}
+.logout:hover{background:var(--bad-soft);color:var(--bad)}
+@media (max-width:860px){.login{grid-template-columns:minmax(0,1fr);grid-template-rows:220px auto}.photo-mark{display:none}}
+@media (max-width:820px){.userbox{padding:4px;border:0}.userbox .meta{display:none}}
+@media (max-width:1040px){.hero,.two,.split{grid-template-columns:minmax(0,1fr)}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:820px){
+  .app{grid-template-columns:minmax(0,1fr)}
+  .side{position:sticky;top:env(safe-area-inset-top,0px);height:auto;flex-direction:row;align-items:center;gap:14px;padding:10px 16px;overflow-x:auto;border-right:0;border-bottom:1px solid var(--line);z-index:10}
+  .brand small,.proto,.navgroup h6{display:none}
+  .navgroup{flex-direction:row;gap:2px}
+  .nav{white-space:nowrap;width:auto;padding:6px 8px}
+  .nav .ico{width:26px;height:26px}
+  .sheet{height:calc(100% - 32px)}
+  .sheet-body{grid-template-columns:minmax(0,1fr);overflow:auto}
+  .sheet-left,.sheet-right{overflow:visible}
+  .sheet-right{border-left:0;border-top:1px solid var(--line)}
+}
+@media (max-width:540px){
+  .hbar{grid-template-columns:minmax(0,1fr) 96px}.hbar .track{grid-column:1 / -1;grid-row:2}
+  .formgrid{grid-template-columns:minmax(0,1fr)}
+  .tx{grid-template-columns:32px minmax(0,1fr) auto}.tx .src,.tx .d{display:none}.fix{grid-column:2 / -1}
+  .kpis{grid-template-columns:minmax(0,1fr)}
+  .allocasset{padding-left:14px}
+}
+@media (prefers-reduced-motion:no-preference){.gauge .fill,.stack span,.hbar .track span{transition:width .35s ease,filter .15s}}
+</style>
+<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="side" aria-label="Navegação">
+    <div class="brand">
+      <span class="logo"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.8 6 L12 19.2 L19.2 6" fill="none" stroke="#fff" stroke-width="2.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="8.6" r="2.2" fill="#fff"/></svg></span>
+      <div><b>vera</b><small>seu dinheiro, de verdade</small></div>
+    </div>
+    <nav class="navgroup" aria-label="Patrimônio" id="nav-pat"></nav>
+    <nav class="navgroup" aria-label="Gastos" id="nav-gas"></nav>
+    <div class="userbox" id="userbox"></div>
+    <div class="proto"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg><span>Protótipo navegável com <b>dados de exemplo</b>; nada é salvo.<br><button class="side-onb" data-onb="restart"><svg class="i" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>Rever onboarding</button></span></div>
+  </aside>
+  <main class="main" id="view"></main>
+</div>
+<div id="login-root"></div>
+<div id="onb-root"></div>
+<div id="modal-root"></div>
+<div id="toast-root"></div>
+<div class="tip" id="tip" hidden></div>
+
+<script>
+const P = {
+  pie:'<path d="M21.2 15.9A10 10 0 1 1 8 2.8"/><path d="M22 12A10 10 0 0 0 12 2v10z"/>',
+  target:'<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+  zap:'<path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/>',
+  wallet:'<path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/>',
+  receipt:'<path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M16 8H8M16 12H8M13 16H8"/>',
+  list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+  scissors:'<circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.12 15.88M14.47 14.48 20 20M8.12 8.12 12 12"/>',
+  plug:'<path d="M12 22v-5M9 8V2M15 8V2M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"/>',
+  plus:'<path d="M5 12h14M12 5v14"/>',
+  trash:'<path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',
+  search:'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+  left:'<path d="m15 18-6-6 6-6"/>',
+  dollar:'<path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>',
+  alert:'<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4M12 17h.01"/>',
+  check:'<path d="M20 6 9 17l-5-5"/>',
+  up:'<path d="m22 7-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/>',
+  download:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>',
+  logout:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>',
+  upload:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>',
+  key:'<circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6M15.5 7.5l3 3L22 7l-3-3"/>',
+  landmark:'<path d="M3 22h18M6 18v-7M10 18v-7M14 18v-7M18 18v-7M12 2l8 5H4z"/>',
+  info:'<circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>',
+  x:'<path d="M18 6 6 18M6 6l12 12"/>',
+  shield:'<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>',
+  coins:'<circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18M7 6h1v4M16.71 13.88l.7.71-2.82 2.82"/>',
+  sliders:'<path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M2 14h4M10 8h4M18 16h4"/>',
+  external:'<path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
+  percent:'<path d="M19 5 5 19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/>',
+  lock:'<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+  thermo:'<path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/>',
+  bars:'<path d="M3 3v18h18M18 17V9M13 17V5M8 17v-3"/>',
+  building:'<path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2M10 6h4M10 10h4M10 14h4M10 18h4"/>',
+  globe:'<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20M2 12h20"/>',
+  home:'<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/>',
+  hexagon:'<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>',
+  book:'<path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>',
+  heart:'<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+  cart:'<circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>',
+  food:'<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v20M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>',
+  car:'<path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/>',
+  film:'<rect x="2" y="2" width="20" height="20" rx="2.18"/><path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 17h5M17 7h5"/>',
+  repeat:'<path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/>',
+  bag:'<path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18M16 10a4 4 0 0 1-8 0"/>',
+  wrench:'<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
+  help:'<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/>',
+  calendar:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+  piggy:'<path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2V5z"/><path d="M2 9v1c0 1.1.9 2 2 2h1M16 11h.01"/>',
+  sparkle:'<path d="M12 3l1.9 5.8L20 10l-6.1 1.2L12 17l-1.9-5.8L4 10l6.1-1.2z"/>'
+};
+const ic = (n, cls = 'i') => `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true">${P[n] || ''}</svg>`;
+const tint = c => `background:color-mix(in srgb, var(--c-${c}) 15%, white);color:var(--c-${c})`;
+
+const FX = 5.42;
+const CDI = 0.1065;
+const CLASSES = [
+  {id:'rf_pos', name:'Renda fixa pós', hint:'CDI e Selic', icon:'percent'},
+  {id:'rf_pre', name:'Renda fixa pré', hint:'taxa fixa, BR e EUA', icon:'lock'},
+  {id:'rf_ipca', name:'Renda fixa IPCA+', hint:'inflação + taxa', icon:'thermo'},
+  {id:'acoes_br', name:'Ações Brasil', hint:'B3', icon:'bars'},
+  {id:'fii', name:'FIIs', hint:'fundos imobiliários', icon:'building'},
+  {id:'acoes_eua', name:'Ações EUA', hint:'por exposição', icon:'globe'},
+  {id:'reits', name:'REITs', hint:'imóveis nos EUA', icon:'home'},
+  {id:'cripto', name:'Cripto', hint:'moedas digitais', icon:'hexagon'}
+];
+const CLS = Object.fromEntries(CLASSES.map(c => [c.id, c]));
+
+const SAMPLE = [
+  {id:1, ticker:'CDB Inter', name:'CDB 110% do CDI, venc. 2028', cls:'rf_pos', kind:'rf', value:182400, cur:'BRL', src:'Curva do CDI (BC)'},
+  {id:14, ticker:'LCI Itaú', name:'LCI 95% do CDI, venc. 2027', cls:'rf_pos', kind:'rf', value:134900, cur:'BRL', src:'Curva do CDI (BC)'},
+  {id:2, ticker:'Tesouro Selic 2029', name:'Tesouro Direto', cls:'rf_pos', kind:'rv', qty:3.2, price:16200, cur:'BRL', src:'Preço oficial do Tesouro'},
+  {id:3, ticker:'Tesouro Pré 2027', name:'Tesouro Direto', cls:'rf_pre', kind:'rv', qty:120, price:812, cur:'BRL', src:'Preço oficial do Tesouro'},
+  {id:19, ticker:'Treasury 2027', name:'US Treasury Note 4,25%', cls:'rf_pre', kind:'rf', value:20000, cur:'USD', src:'Preço público do Treasury'},
+  {id:4, ticker:'Tesouro IPCA+ 2035', name:'Tesouro Direto', cls:'rf_ipca', kind:'rv', qty:60, price:2150, cur:'BRL', src:'Preço oficial do Tesouro'},
+  {id:5, ticker:'ITUB4', name:'Itaú Unibanco PN', cls:'acoes_br', kind:'rv', qty:2000, price:37.80, cur:'BRL', src:'B3 via brapi'},
+  {id:6, ticker:'WEGE3', name:'WEG ON', cls:'acoes_br', kind:'rv', qty:1500, price:52.10, cur:'BRL', src:'B3 via brapi'},
+  {id:7, ticker:'PETR4', name:'Petrobras PN', cls:'acoes_br', kind:'rv', qty:1800, price:36.90, cur:'BRL', src:'B3 via brapi'},
+  {id:8, ticker:'HGLG11', name:'CSHG Logística', cls:'fii', kind:'rv', qty:400, price:158.00, cur:'BRL', src:'B3 via brapi'},
+  {id:15, ticker:'KNRI11', name:'Kinea Renda Imobiliária', cls:'fii', kind:'rv', qty:350, price:152.00, cur:'BRL', src:'B3 via brapi'},
+  {id:9, ticker:'IVVB11', name:'ETF S&P 500 na B3', cls:'acoes_eua', kind:'rv', qty:300, price:362.00, cur:'BRL', src:'B3 via brapi', usdExp:true, flag:'ETF na B3, classificado por exposição'},
+  {id:10, ticker:'VOO', name:'Vanguard S&P 500 ETF', cls:'acoes_eua', kind:'rv', qty:40, price:545, cur:'USD', src:'Finnhub'},
+  {id:16, ticker:'AAPL', name:'Apple', cls:'acoes_eua', kind:'rv', qty:60, price:228, cur:'USD', src:'Finnhub'},
+  {id:17, ticker:'MSFT', name:'Microsoft', cls:'acoes_eua', kind:'rv', qty:30, price:430, cur:'USD', src:'Finnhub'},
+  {id:11, ticker:'O', name:'Realty Income', cls:'reits', kind:'rv', qty:300, price:58, cur:'USD', src:'Finnhub'},
+  {id:18, ticker:'VNQ', name:'Vanguard Real Estate ETF', cls:'reits', kind:'rv', qty:120, price:92, cur:'USD', src:'Finnhub'},
+  {id:12, ticker:'BTC', name:'Bitcoin', cls:'cripto', kind:'rv', qty:0.45, price:62000, cur:'USD', src:'CoinGecko'},
+  {id:13, ticker:'ETH', name:'Ethereum', cls:'cripto', kind:'rv', qty:4, price:2600, cur:'USD', src:'CoinGecko'}
+];
+let positions = [];
+let nextId = 100;
+
+const CATALOG = [
+  {ticker:'ITUB4', name:'Itaú Unibanco PN', cls:'acoes_br', price:37.80, cur:'BRL', src:'B3 via brapi', type:'Ação'},
+  {ticker:'WEGE3', name:'WEG ON', cls:'acoes_br', price:52.10, cur:'BRL', src:'B3 via brapi', type:'Ação'},
+  {ticker:'PETR4', name:'Petrobras PN', cls:'acoes_br', price:36.90, cur:'BRL', src:'B3 via brapi', type:'Ação'},
+  {ticker:'Tesouro Selic 2029', name:'Tesouro Direto', cls:'rf_pos', price:16200, cur:'BRL', src:'Preço oficial do Tesouro', type:'Tesouro'},
+  {ticker:'Tesouro IPCA+ 2035', name:'Tesouro Direto', cls:'rf_ipca', price:2150, cur:'BRL', src:'Preço oficial do Tesouro', type:'Tesouro'},
+  {ticker:'Tesouro Prefixado 2027', name:'Tesouro Direto', cls:'rf_pre', price:812, cur:'BRL', src:'Preço oficial do Tesouro', type:'Tesouro'},
+  {ticker:'Tesouro IPCA+ 2045', name:'Tesouro Direto', cls:'rf_ipca', price:1180, cur:'BRL', src:'Preço oficial do Tesouro', type:'Tesouro'},
+  {ticker:'O', name:'Realty Income', cls:'reits', price:58, cur:'USD', src:'Finnhub', type:'REIT'},
+  {ticker:'KNRI11', name:'Kinea Renda Imobiliária', cls:'fii', price:152.00, cur:'BRL', src:'B3 via brapi', type:'FII'},
+  {ticker:'VOO', name:'Vanguard S&P 500 ETF', cls:'acoes_eua', price:545, cur:'USD', src:'Finnhub', type:'ETF'},
+  {ticker:'AAPL', name:'Apple', cls:'acoes_eua', price:228, cur:'USD', src:'Finnhub', type:'Ação'},
+  {ticker:'BBAS3', name:'Banco do Brasil ON', cls:'acoes_br', price:27.40, cur:'BRL', src:'B3 via brapi', type:'Ação'},
+  {ticker:'TAEE11', name:'Taesa Unit', cls:'acoes_br', price:35.20, cur:'BRL', src:'B3 via brapi', type:'Ação'},
+  {ticker:'EGIE3', name:'Engie Brasil ON', cls:'acoes_br', price:41.60, cur:'BRL', src:'B3 via brapi', type:'Ação'},
+  {ticker:'BOVA11', name:'iShares Ibovespa', cls:'acoes_br', price:128.50, cur:'BRL', src:'B3 via brapi', type:'ETF'},
+  {ticker:'IVVB11', name:'ETF S&P 500 na B3', cls:'acoes_eua', price:362.00, cur:'BRL', src:'B3 via brapi', type:'ETF', usdExp:true, flag:'ETF negociado na B3 com exposição a ações dos EUA'},
+  {ticker:'NASD11', name:'ETF Nasdaq-100 na B3', cls:'acoes_eua', price:16.80, cur:'BRL', src:'B3 via brapi', type:'ETF', usdExp:true, flag:'ETF negociado na B3 com exposição a ações dos EUA'},
+  {ticker:'AAPL34', name:'BDR Apple', cls:'acoes_eua', price:61.30, cur:'BRL', src:'B3 via brapi', type:'BDR', usdExp:true, flag:'BDR: empresa estrangeira negociada na B3'},
+  {ticker:'XPML11', name:'XP Malls', cls:'fii', price:104.90, cur:'BRL', src:'B3 via brapi', type:'FII'},
+  {ticker:'HGLG11', name:'CSHG Logística', cls:'fii', price:158.00, cur:'BRL', src:'B3 via brapi', type:'FII'},
+  {ticker:'MXRF11', name:'Maxi Renda', cls:'fii', price:9.80, cur:'BRL', src:'B3 via brapi', type:'FII'},
+  {ticker:'SCHD', name:'Schwab US Dividend Equity ETF', cls:'acoes_eua', price:27.90, cur:'USD', src:'Finnhub', type:'ETF'},
+  {ticker:'VT', name:'Vanguard Total World ETF', cls:'acoes_eua', price:118.40, cur:'USD', src:'Finnhub', type:'ETF'},
+  {ticker:'GOOGL', name:'Alphabet', cls:'acoes_eua', price:166.00, cur:'USD', src:'Finnhub', type:'Ação'},
+  {ticker:'PLD', name:'Prologis', cls:'reits', price:112.00, cur:'USD', src:'Finnhub', type:'REIT'},
+  {ticker:'VNQ', name:'Vanguard Real Estate ETF', cls:'reits', price:92.00, cur:'USD', src:'Finnhub', type:'ETF de REITs'},
+  {ticker:'SOL', name:'Solana', cls:'cripto', price:148.00, cur:'USD', src:'CoinGecko', type:'Cripto'},
+  {ticker:'BTC', name:'Bitcoin', cls:'cripto', price:62000, cur:'USD', src:'CoinGecko', type:'Cripto'},
+  {ticker:'ETH', name:'Ethereum', cls:'cripto', price:2600, cur:'USD', src:'CoinGecko', type:'Cripto'}
+];
+
+let classTargets = {rf_pos:20, rf_pre:8, rf_ipca:12, acoes_br:15, fii:7, acoes_eua:25, reits:8, cripto:5};
+let assetTargets = {acoes_br:{ITUB4:30, WEGE3:40, PETR4:30}};
+
+const CATS = [
+  {id:'moradia', name:'Moradia', flex:false, avg:7700, icon:'home'},
+  {id:'escola', name:'Escola', flex:false, avg:3200, icon:'book'},
+  {id:'saude', name:'Saúde', flex:false, avg:1380, icon:'heart'},
+  {id:'mercado', name:'Mercado', flex:true, avg:2650, icon:'cart'},
+  {id:'delivery', name:'Delivery e restaurantes', flex:true, avg:1750, icon:'food'},
+  {id:'transporte', name:'Transporte', flex:true, avg:1200, icon:'car'},
+  {id:'lazer', name:'Lazer', flex:true, avg:1400, icon:'film'},
+  {id:'assinaturas', name:'Assinaturas', flex:true, avg:610, icon:'repeat'},
+  {id:'compras', name:'Compras', flex:true, avg:1600, icon:'bag'},
+  {id:'casa', name:'Casa e serviços', flex:false, avg:0, icon:'wrench'}
+];
+const CATMAP = Object.fromEntries(CATS.map(c => [c.id, c]));
+const MONTH_TOTALS = {moradia:7700, escola:3200, saude:1400, mercado:2900, delivery:2450, transporte:1300, lazer:1900, assinaturas:640, compras:2350, casa:0};
+const INCOME = 28000;
+
+let txs = [
+  {id:1, d:'28/09', m:'Pix enviado · Maria Souza', amt:450, cat:null, src:'Itaú · Open Finance', how:''},
+  {id:2, d:'27/09', m:'IFOOD *RESTAURANTE SABOR', amt:89.90, cat:'delivery', src:'Nubank · Open Finance', how:'dicionário'},
+  {id:3, d:'26/09', m:'UBER *TRIP', amt:32.50, cat:'transporte', src:'Nubank · Open Finance', how:'dicionário'},
+  {id:4, d:'25/09', m:'PAO DE ACUCAR 1243', amt:412.30, cat:'mercado', src:'Nubank · Open Finance', how:'Pluggy'},
+  {id:5, d:'24/09', m:'AMAZON MARKETPLACE', amt:389.00, cat:'compras', src:'Nubank · Open Finance', how:'dicionário'},
+  {id:6, d:'22/09', m:'CINEMARK SHOPPING', amt:96.00, cat:'lazer', src:'Nubank · Open Finance', how:'dicionário'},
+  {id:7, d:'21/09', m:'RAPPI *PEDIDO', amt:64.50, cat:'delivery', src:'Nubank · Open Finance', how:'dicionário'},
+  {id:8, d:'20/09', m:'SHELL BOX POSTO', amt:250.00, cat:'transporte', src:'Nubank · Open Finance', how:'dicionário'},
+  {id:9, d:'14/09', m:'Pix enviado · Maria Souza', amt:350, cat:null, src:'Itaú · Open Finance', how:''},
+  {id:10, d:'10/09', m:'Pix enviado · Imobiliária Lopes', amt:6500, cat:'moradia', src:'Itaú · Open Finance', how:'sua regra'},
+  {id:11, d:'08/09', m:'SMART FIT', amt:129.90, cat:'saude', src:'Nubank · Open Finance', how:'dicionário'},
+  {id:12, d:'05/09', m:'NETFLIX.COM', amt:55.90, cat:'assinaturas', src:'Nubank · Open Finance', how:'dicionário'},
+  {id:13, d:'05/09', m:'SPOTIFY', amt:34.90, cat:'assinaturas', src:'Nubank · Open Finance', how:'dicionário'}
+];
+const CAT_BASE = {};
+CATS.forEach(c => { CAT_BASE[c.id] = MONTH_TOTALS[c.id] - txs.filter(t => t.cat === c.id).reduce((s, t) => s + t.amt, 0); });
+
+const NAV = {
+  'nav-pat': ['Patrimônio', [['visao', 'Visão geral', 'pie'], ['meta', 'Carteira-alvo', 'target'], ['aporte', 'Aporte inteligente', 'zap'], ['ativos', 'Meus ativos', 'wallet']]],
+  'nav-gas': ['Gastos', [['gastos', 'Resumo do mês', 'receipt'], ['transacoes', 'Transações', 'list'], ['cortes', 'Onde cortar', 'scissors'], ['conexoes', 'Conexões', 'plug']]]
+};
+Object.entries(NAV).forEach(([id, [title, items]]) => {
+  document.getElementById(id).innerHTML = `<h6>${title}</h6>` + items.map(([k, l, i]) => `<button class="nav" data-go="${k}"><span class="ico">${ic(i)}</span>${l}${k === 'transacoes' ? '<span class="count" id="unc-count"></span>' : ''}</button>`).join('');
+});
+
+const state = {screen:'visao', cls:'acoes_br', base:'BRL', aporte:10000, tol:5, goal:20, pluggy:'idle', imported:null, done:{}, sample:false, auth:false, user:null, onb:{open:true, step:0, skipped:{}}};
+
+const brl = new Intl.NumberFormat('pt-BR', {style:'currency', currency:'BRL', maximumFractionDigits:0});
+const usd = new Intl.NumberFormat('pt-BR', {style:'currency', currency:'USD', maximumFractionDigits:0});
+const brl2 = new Intl.NumberFormat('pt-BR', {style:'currency', currency:'BRL', minimumFractionDigits:2, maximumFractionDigits:2});
+const usd2 = new Intl.NumberFormat('pt-BR', {style:'currency', currency:'USD', minimumFractionDigits:2, maximumFractionDigits:2});
+const nf = new Intl.NumberFormat('pt-BR', {maximumFractionDigits:4});
+const money = v => state.base === 'USD' ? usd.format(v / FX) : brl.format(v);
+const pct = (v, d = 1) => v.toFixed(d).replace('.', ',') + '%';
+const pp = v => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(1).replace('.', ',') + ' pp';
+const esc = s => String(s).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+
+const valueBRL = p => (p.kind === 'rf' ? p.value : p.qty * p.price) * (p.cur === 'USD' ? FX : 1);
+
+function classRows() {
+  const total = positions.reduce((s, p) => s + valueBRL(p), 0);
+  return {total, rows: CLASSES.map(c => {
+    const value = positions.filter(p => p.cls === c.id).reduce((s, p) => s + valueBRL(p), 0);
+    const share = total ? value / total * 100 : 0;
+    const target = classTargets[c.id] || 0;
+    return {cls:c.id, value, share, target, dev: share - target};
+  })};
+}
+
+function assetGroups(cls) {
+  const map = new Map();
+  positions.filter(p => p.cls === cls).forEach(p => {
+    const g = map.get(p.ticker) || {ticker:p.ticker, name:p.name, value:0, sample:p};
+    g.value += valueBRL(p); map.set(p.ticker, g);
+  });
+  const groups = [...map.values()];
+  const total = groups.reduce((s, g) => s + g.value, 0);
+  const t = assetTargetsFor(cls, groups.map(g => g.ticker));
+  groups.forEach(g => { g.share = total ? g.value / total * 100 : 0; g.target = t[g.ticker]; g.dev = g.share - g.target; });
+  return {total, groups: groups.sort((a, b) => b.value - a.value)};
+}
+
+function assetTargetsFor(cls, tickers) {
+  const out = {};
+  if (assetTargets[cls]) { tickers.forEach(tk => { out[tk] = assetTargets[cls][tk] ?? 0; }); return out; }
+  const each = tickers.length ? 100 / tickers.length : 0;
+  tickers.forEach(tk => { out[tk] = Math.round(each * 10) / 10; });
+  return out;
+}
+
+function status(dev, tol = state.tol) {
+  if (Math.abs(dev) <= tol) return `<span class="chip ok">${ic('check')}na faixa</span>`;
+  return dev > 0 ? `<span class="chip up">${pp(dev)} acima</span>` : `<span class="chip down">${pp(dev)} abaixo</span>`;
+}
+
+function gauge(share, target, color, tipAttrs) {
+  const max = Math.max(share, target, 1) * 1.25;
+  return `<div class="gauge" ${tipAttrs}><div class="fill" style="width:${share / max * 100}%;background:${color}"></div><div class="tgt" style="left:calc(${target / max * 100}% - 1px)"></div></div>`;
+}
+
+function allocate(amount, items) {
+  const total = items.reduce((s, i) => s + i.current, 0) + amount;
+  const needs = items.map(i => Math.max(0, i.target / 100 * total - i.current));
+  const sumN = needs.reduce((a, b) => a + b, 0);
+  const tp = items.reduce((s, i) => s + i.target, 0) || 1;
+  if (sumN <= 0) return items.map(i => amount * i.target / tp);
+  if (sumN >= amount) return needs.map(n => amount * n / sumN);
+  return needs.map((n, k) => n + (amount - sumN) * items[k].target / tp);
+}
+
+const baseSeg = () => `<div class="seg" role="group" aria-label="Moeda"><button data-set="base" data-val="BRL" aria-pressed="${state.base === 'BRL'}">R$</button><button data-set="base" data-val="USD" aria-pressed="${state.base === 'USD'}">${ic('dollar')}US$</button></div>`;
+const title = (icon, text) => `<h1><span class="hico">${ic(icon)}</span>${text}</h1>`;
+
+const screens = {};
+
+screens.visao = () => {
+  const {total, rows} = classRows();
+  const usdExp = positions.filter(p => p.cur === 'USD' || p.usdExp).reduce((s, p) => s + valueBRL(p), 0);
+  const worst = [...rows].sort((a, b) => Math.abs(b.dev) - Math.abs(a.dev))[0];
+  const outside = rows.filter(r => Math.abs(r.dev) > state.tol).length;
+  return `
+  <div class="head"><div>${title('pie', 'Seu patrimônio')}<p>Como a carteira está distribuída hoje, comparada com a distribuição que você definiu.</p></div><div class="controls">${baseSeg()}</div></div>
+  <div class="hero">
+    <section class="card herocard">
+      <div class="deco">${ic('coins')}</div>
+      <div class="label">${ic('wallet')}Patrimônio total</div>
+      <div class="big num">${money(total)}</div>
+      <div class="pills">
+        <span class="pill">${ic('globe')}Exposição ao dólar <b class="num">${pct(total ? usdExp / total * 100 : 0)}</b></span>
+        <span class="pill">${ic('alert')}Fora da faixa <b class="num">${outside} de ${rows.length}</b></span>
+        <span class="pill">${ic('dollar')}US$ 1 = <b class="num">R$ ${FX.toFixed(2).replace('.', ',')}</b></span>
+      </div>
+      <div class="callout">${ic('target')}<span>Maior desvio: <b>${CLS[worst.cls].name}</b>, ${pp(worst.dev).replace('+', '')} ${worst.dev > 0 ? 'acima' : 'abaixo'} da meta.</span><button class="btn sm primary" data-go="aporte" style="margin-left:auto">${ic('zap')}Onde aportar</button></div>
+    </section>
+    <section class="card">
+      <h2>${ic('sliders')}Atual × meta</h2><p>Passe o mouse sobre as barras para ver os valores.</p>
+      <div class="stackwrap">
+        <div class="stackrow"><span>Atual</span><div class="stack">${rows.map(r => `<span style="width:${r.share}%;background:var(--c-${r.cls})" data-tip="${r.cls}" data-tip-kind="atual"></span>`).join('')}</div></div>
+        <div class="stackrow"><span>Meta</span><div class="stack meta">${rows.map(r => `<span style="width:${r.target}%;background:var(--c-${r.cls})" data-tip="${r.cls}" data-tip-kind="meta"></span>`).join('')}</div></div>
+      </div>
+      <div class="legend">${rows.map(r => `<span><i style="background:var(--c-${r.cls})"></i>${CLS[r.cls].name}</span>`).join('')}</div>
+    </section>
+  </div>
+  <section class="card" style="margin-top:16px">
+    <h2>${ic('bars')}Distribuição por classe</h2><p>Clique numa classe para calibrar os ativos dentro dela. Faixa de tolerância: ±${state.tol} pp.</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Classe</th><th class="r">Valor</th><th class="r">Atual</th><th class="r">Meta</th><th>Atual vs meta</th><th>Situação</th></tr></thead>
+      <tbody>${rows.map(r => `<tr class="click" data-open-class="${r.cls}" tabindex="0">
+        <td><span class="who"><span class="tile" style="${tint(r.cls)}">${ic(CLS[r.cls].icon)}</span><span><span class="cname">${CLS[r.cls].name}</span><span class="sub">${CLS[r.cls].hint}</span></span></span></td>
+        <td class="r num">${money(r.value)}</td><td class="r num">${pct(r.share)}</td><td class="r num">${pct(r.target, 0)}</td>
+        <td>${gauge(r.share, r.target, `var(--c-${r.cls})`, `data-tip="${r.cls}" data-tip-kind="ambos"`)}</td><td>${status(r.dev)}</td></tr>`).join('')}</tbody>
+    </table></div>
+  </section>`;
+};
+
+screens.classe = () => {
+  const c = CLS[state.cls];
+  const {rows} = classRows();
+  const r = rows.find(x => x.cls === state.cls);
+  const {total, groups} = assetGroups(state.cls);
+  const tsum = groups.reduce((s, g) => s + g.target, 0);
+  return `
+  <button class="back" data-go="visao">${ic('left')}Visão geral</button>
+  <div class="head"><div><h1><span class="hico" style="${tint(c.id)}">${ic(c.icon)}</span>${c.name}</h1><p>${money(total)} · ${pct(r.share)} do patrimônio, meta de ${pct(r.target, 0)}. Defina quanto cada ativo deve pesar dentro da classe.</p></div><div class="controls">${baseSeg()}</div></div>
+  <section class="card">
+    ${groups.length ? `<div class="tablewrap"><table>
+      <thead><tr><th>Ativo</th><th class="r">Valor</th><th class="r">Na classe</th><th>Atual vs meta</th><th class="r">Meta na classe</th><th>Situação</th></tr></thead>
+      <tbody>${groups.map(g => `<tr>
+        <td><span class="cname">${esc(g.ticker)}</span><span class="sub">${esc(g.name)}${g.sample.flag ? ' · ' + esc(g.sample.flag) : ''}</span></td>
+        <td class="r num">${money(g.value)}</td><td class="r num">${pct(g.share)}</td>
+        <td>${gauge(g.share, g.target, `var(--c-${c.id})`, `data-tip-asset="${esc(g.ticker)}"`)}</td>
+        <td class="r"><input class="input num tiny" type="number" min="0" max="100" step="1" id="at-${esc(g.ticker).replace(/\W/g, '_')}" data-asset-target="${esc(g.ticker)}" value="${Math.round(g.target * 10) / 10}" aria-label="Meta de ${esc(g.ticker)} na classe"> %</td>
+        <td>${status(g.dev)}</td></tr>`).join('')}</tbody>
+    </table></div>
+    <div class="row between" style="margin-top:14px">
+      <span class="${Math.abs(tsum - 100) < 0.05 ? 'chip ok' : 'chip bad'}">Soma das metas: ${pct(tsum)}</span>
+      <button class="btn" data-add="${c.id}">${ic('plus')}Adicionar ativo à classe</button>
+    </div>` : `<div class="empty">${ic(c.icon)}<p>Nenhum ativo nesta classe ainda.</p><button class="btn primary" data-add="${c.id}">${ic('plus')}Adicionar ativo</button></div>`}
+  </section>
+  <p class="note" style="margin-top:14px">${ic('info')}<span>Quer incluir um ativo que ainda não tem? Adicione com quantidade zero e dê uma meta a ele: o aporte inteligente passa a direcionar dinheiro para ele.</span></p>`;
+};
+
+screens.meta = () => {
+  const {rows} = classRows();
+  const sum = CLASSES.reduce((s, c) => s + (classTargets[c.id] || 0), 0);
+  return `
+  <div class="head"><div>${title('target', 'Carteira-alvo')}<p>Quanto do patrimônio você quer em cada classe.</p></div></div>
+  <div class="split">
+    <section class="card">
+      <h2>${ic('sliders')}Metas por classe</h2><p>Ajuste os percentuais; a visão geral recalcula na hora.</p>
+      <div class="tablewrap"><table style="min-width:420px">
+        <thead><tr><th>Classe</th><th class="r">Hoje</th><th class="r">Meta</th></tr></thead>
+        <tbody>${CLASSES.map(c => { const r = rows.find(x => x.cls === c.id); return `<tr>
+          <td><span class="who"><span class="tile" style="${tint(c.id)}">${ic(c.icon)}</span><span><span class="cname">${c.name}</span><span class="sub">${c.hint}</span></span></span></td>
+          <td class="r num muted">${pct(r.share)}</td>
+          <td class="r"><span class="stepper"><button data-step="${c.id}" data-d="-1" aria-label="Diminuir ${c.name}">−</button><input class="input num tiny" type="number" min="0" max="100" step="1" id="ct-${c.id}" data-class-target="${c.id}" value="${classTargets[c.id]}" aria-label="Meta de ${c.name}"><button data-step="${c.id}" data-d="1" aria-label="Aumentar ${c.name}">+</button></span></td>
+        </tr>`; }).join('')}</tbody>
+      </table></div>
+      <div class="row between" style="margin-top:14px"><span class="${sum === 100 ? 'chip ok' : 'chip bad'}">${sum === 100 ? ic('check') : ic('alert')}Total: ${sum}%${sum === 100 ? '' : sum > 100 ? ` (tire ${sum - 100} pp)` : ` (faltam ${100 - sum} pp)`}</span></div>
+    </section>
+    <div class="grid">
+      <section class="card">
+        <h2>${ic('target')}Faixa de tolerância</h2><p>Abaixo desse desvio, a classe aparece como "na faixa" e não gera alerta.</p>
+        <div class="row"><span class="stepper"><button data-tol="-1" aria-label="Diminuir tolerância">−</button><input class="input num tiny" type="number" min="0" max="20" id="tol" data-tol-input value="${state.tol}" aria-label="Tolerância em pontos percentuais"><button data-tol="1" aria-label="Aumentar tolerância">+</button></span><span class="muted">pontos percentuais</span></div>
+        <p class="note" style="margin:16px 0 0">${ic('info')}<span>Com meta de 20% e tolerância de ${state.tol} pp, a classe fica na faixa entre ${20 - state.tol}% e ${20 + state.tol}%.</span></p>
+      </section>
+      <section class="card">
+        <h2>${ic('sparkle')}Classes editáveis</h2><p style="margin:0">No produto, dá pra juntar FIIs e REITs em "Imóveis", criar "Previdência" ou renomear qualquer classe.</p>
+      </section>
+    </div>
+  </div>`;
+};
+
+screens.aporte = () => {
+  const {total, rows} = classRows();
+  const amount = Math.max(0, Number(state.aporte) || 0);
+  const alloc = allocate(amount, rows.map(r => ({current:r.value, target:r.target})));
+  const newTotal = total + amount;
+  const blocks = rows.map((r, i) => ({r, a:alloc[i]})).filter(x => x.a >= 1).sort((a, b) => b.a - a.a);
+  return `
+  <div class="head"><div>${title('zap', 'Aporte inteligente')}<p>Diga quanto vai investir e veja onde colocar para aproximar a carteira da meta, sem vender nada (vender gera imposto).</p></div><div class="controls">${baseSeg()}</div></div>
+  <section class="card herocard">
+    <div class="deco">${ic('zap')}</div>
+    <div class="row" style="align-items:flex-end;gap:16px">
+      <div class="field" style="max-width:260px"><label for="aporte">Quanto você vai aportar (R$)</label><input class="input num" style="font-size:20px;font-family:var(--f-display)" id="aporte" type="number" min="0" step="500" value="${amount}" data-aporte></div>
+      <div class="row">${[5000, 10000, 25000, 50000].map(v => `<button class="btn sm" data-aporte-quick="${v}">${brl.format(v)}</button>`).join('')}</div>
+    </div>
+  </section>
+  <div class="alloc" style="margin-top:16px">
+    ${amount <= 0 ? '<p class="muted">Informe um valor para ver a sugestão.</p>' : blocks.map(({r, a}) => {
+      const after = (r.value + a) / newTotal * 100;
+      const {groups} = assetGroups(r.cls);
+      let assets = '';
+      if (groups.length) {
+        const sub = allocate(a, groups.map(g => ({current:g.value, target:g.target})));
+        assets = groups.map((g, k) => ({g, v:sub[k]})).filter(x => x.v >= 1).sort((x, y) => y.v - x.v).map(({g, v}) => {
+          const s = g.sample;
+          const units = s.kind === 'rv' ? v / (s.cur === 'USD' ? FX : 1) / s.price : null;
+          const unitTxt = units == null ? 'novo título ou reforço' : units >= 1 ? `≈ ${Math.floor(units).toLocaleString('pt-BR')} ${s.cls === 'cripto' ? 'un.' : 'cotas'}` : `≈ ${nf.format(units)} un.`;
+          return `<div class="allocasset"><span><b>${esc(g.ticker)}</b> <span class="muted">${esc(g.name)}</span></span><span class="muted">${unitTxt}</span><span class="num">${money(v)}</span></div>`;
+        }).join('');
+      }
+      return `<div class="allocclass"><header><span class="tile" style="${tint(r.cls)}">${ic(CLS[r.cls].icon)}</span><b>${CLS[r.cls].name}</b><span class="muted num">${pct(r.share)} → ${pct(after)} <span style="opacity:.7">(meta ${pct(r.target, 0)})</span></span><span class="amt num">${money(a)}</span></header>${assets}</div>`;
+    }).join('')}
+  </div>
+  <p class="note" style="margin-top:14px">${ic('info')}<span>A conta: com o aporte, o patrimônio vai a ${money(newTotal)}. Cada classe abaixo da meta recebe a diferença até a meta; se o dinheiro não cobre tudo, ele é dividido proporcionalmente ao que falta. Dentro da classe, vale a mesma regra entre os ativos.</span></p>`;
+};
+
+screens.ativos = () => {
+  const list = positions.slice().sort((a, b) => CLASSES.findIndex(c => c.id === a.cls) - CLASSES.findIndex(c => c.id === b.cls) || valueBRL(b) - valueBRL(a));
+  return `
+  <div class="head"><div>${title('wallet', 'Meus ativos')}<p>Cadastro manual. Ações, fundos e cripto atualizam pela cotação; renda fixa é calculada pelo indexador. A classe vem sugerida e você pode trocar.</p></div><div class="controls">${baseSeg()}<button class="btn" data-export="ativos">${ic('download')}Baixar planilha</button><button class="btn primary" data-add="">${ic('plus')}Adicionar ativo</button></div></div>
+  <section class="card">
+    <div class="tablewrap"><table style="min-width:760px">
+      <thead><tr><th>Ativo</th><th>Classe</th><th class="r">Quantidade</th><th class="r">Valor</th><th>Fonte do valor</th><th></th></tr></thead>
+      <tbody>${list.map(p => `<tr>
+        <td><span class="who"><span class="tile" style="${tint(p.cls)}">${ic(CLS[p.cls].icon)}</span><span><span class="cname">${esc(p.ticker)}</span><span class="sub">${esc(p.name)}</span></span></span></td>
+        <td><select class="input" style="width:auto;padding:5px 8px" data-reclass="${p.id}" id="rc-${p.id}" aria-label="Classe de ${esc(p.ticker)}">${CLASSES.map(c => `<option value="${c.id}" ${c.id === p.cls ? 'selected' : ''}>${c.name}</option>`).join('')}</select></td>
+        <td class="r">${p.kind === 'rv' ? `<input class="input num tiny" style="width:96px" type="number" min="0" step="any" id="q-${p.id}" data-qty="${p.id}" value="${p.qty}" aria-label="Quantidade de ${esc(p.ticker)}">` : '<span class="chip plain">título</span>'}</td>
+        <td class="r num">${money(valueBRL(p))}</td>
+        <td class="muted" style="font-size:12.5px">${esc(p.src)}</td>
+        <td><button class="iconbtn" data-del="${p.id}" aria-label="Remover ${esc(p.ticker)}">${ic('trash')}</button></td></tr>`).join('')}</tbody>
+    </table></div>
+  </section>`;
+};
+
+function catTotals() {
+  const t = {...CAT_BASE};
+  let unc = 0;
+  txs.forEach(x => { if (x.cat) t[x.cat] = (t[x.cat] || 0) + x.amt; else unc += x.amt; });
+  return {t, unc};
+}
+function spendSummary() {
+  const {t, unc} = catTotals();
+  const spent = Object.values(t).reduce((a, b) => a + b, 0) + unc;
+  const saved = INCOME - spent;
+  return {t, unc, spent, saved, rate: saved / INCOME * 100};
+}
+const catTile = (c, unc) => `<span class="tile" style="background:${unc ? 'var(--warn-soft)' : c.flex ? 'var(--accent-soft)' : 'var(--surface-2)'};color:${unc ? 'var(--warn)' : c.flex ? 'var(--accent-strong)' : 'var(--ink-2)'}">${ic(unc ? 'help' : c.icon)}</span>`;
+
+screens.gastos = () => {
+  const {t, unc, spent, saved, rate} = spendSummary();
+  const rows = CATS.filter(c => t[c.id] > 0).map(c => ({c, v:t[c.id]})).sort((a, b) => b.v - a.v);
+  if (unc > 0) rows.push({c:{id:'unc', name:'Sem categoria', unc:true}, v:unc});
+  const max = Math.max(...rows.map(r => Math.max(r.v, r.c.avg || 0)));
+  const fixed = CATS.filter(c => !c.flex).reduce((s, c) => s + (t[c.id] || 0), 0);
+  return `
+  <div class="head"><div>${title('receipt', 'Setembro de 2026')}<p>Você guardou ${pct(rate, 0)} da renda. Sua meta é ${state.goal}%.</p></div><div class="controls"><button class="btn primary" data-go="cortes">${ic('scissors')}Ver onde cortar</button></div></div>
+  <div class="kpis">
+    <div class="kpi"><span class="tile" style="background:var(--good-soft);color:var(--good)">${ic('up')}</span><div class="label">Renda</div><div class="v">${brl.format(INCOME)}</div></div>
+    <div class="kpi"><span class="tile" style="background:var(--surface-2);color:var(--ink-2)">${ic('receipt')}</span><div class="label">Gastos</div><div class="v">${brl.format(spent)}</div></div>
+    <div class="kpi focus"><span class="tile" style="background:var(--accent);color:#fff">${ic('piggy')}</span><div class="label">Guardado</div><div class="v">${brl.format(saved)} <span class="muted" style="font-size:15px">${pct(rate, 0)}</span></div></div>
+    <div class="kpi"><span class="tile" style="background:var(--accent-soft);color:var(--accent-strong)">${ic('target')}</span><div class="label">Meta</div><div class="v">${brl.format(INCOME * state.goal / 100)} <span class="muted" style="font-size:15px">${state.goal}%</span></div></div>
+  </div>
+  <section class="card" style="margin-top:16px">
+    <div class="row between" style="align-items:flex-start"><div><h2>${ic('bars')}Para onde foi o dinheiro</h2><p style="margin:0 0 10px" class="muted">A marca escura é a sua média dos últimos 3 meses. Clique em "fixo" ou "flexível" para mudar o tipo; só os flexíveis entram na sugestão de corte.</p></div>
+    <div class="legend" style="margin-top:4px"><span><i style="background:var(--accent)"></i>flexível</span><span><i style="background:#b9a3af"></i>fixo</span><span><i style="background:var(--warn)"></i>sem categoria</span></div></div>
+    ${rows.map(({c, v}) => `<div class="hbar">
+      <div class="who">${catTile(c, c.unc)}<span><span class="cname">${c.name}</span><span class="sub">${c.unc ? `<button class="tog" data-go="transacoes">categorizar</button>` : `<button class="tog ${c.flex ? 'on' : ''}" data-flex="${c.id}">${c.flex ? 'flexível' : 'fixo'}</button>`}</span></span></div>
+      <div class="track" data-tip-cat="${c.id}"><span class="${c.unc ? 'unc' : c.flex ? 'flex' : ''}" style="width:${v / max * 100}%"></span>${c.avg ? `<i style="left:calc(${c.avg / max * 100}% - 1px)"></i>` : ''}</div>
+      <div class="num" style="text-align:right">${brl.format(v)}${c.avg && v > c.avg * 1.1 ? `<span class="sub" style="color:var(--warn);font-weight:600">+${Math.round((v / c.avg - 1) * 100)}% vs média</span>` : ''}</div>
+    </div>`).join('')}
+    <p class="note" style="margin:14px 0 0">${ic('info')}<span>Gastos fixos somam <b>${brl.format(fixed)}</b> (${pct(fixed / INCOME * 100, 0)} da renda). O resto é onde dá pra mexer.</span></p>
+  </section>`;
+};
+
+screens.transacoes = () => {
+  const unc = txs.filter(t => !t.cat);
+  const opts = CATS.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+  return `
+  <div class="head"><div>${title('list', 'Transações')}<p>A maior parte se classifica sozinha (categoria do Pluggy, dicionário de estabelecimentos e as suas regras). O que sobra, você ensina uma vez.</p></div><div class="controls"><button class="btn" data-export="transacoes">${ic('download')}Baixar planilha</button></div></div>
+  ${unc.length ? `<p class="note" style="margin-bottom:14px;background:var(--warn-soft)">${ic('alert')}<span><b>${unc.length} transações sem categoria</b>, geralmente Pix para pessoa física. Escolha a categoria e marque "sempre" para criar uma regra.</span></p>` : `<p class="note" style="margin-bottom:14px;background:var(--good-soft)">${ic('check')}<span><b>Tudo categorizado.</b> As próximas transações iguais vão cair na categoria certa.</span></p>`}
+  <section class="card">
+    ${txs.map(t => { const c = t.cat ? CATMAP[t.cat] : null; return `<div class="tx ${t.cat ? '' : 'unc'}">
+      ${catTile(c || {}, !c)}
+      <span class="d num">${t.d}</span>
+      <span><span class="m">${esc(t.m)}</span><span class="sub">${c ? c.name : 'Sem categoria'}${t.how ? ` · por ${t.how}` : ''}</span></span>
+      <span class="src muted" style="font-size:12px">${esc(t.src)}</span>
+      <span class="num" style="text-align:right;font-weight:600">${brl2.format(t.amt)}</span>
+      ${t.cat ? '' : `<div class="fix"><select class="input" style="width:auto;padding:5px 8px" id="fx-${t.id}" aria-label="Categoria"><option value="">Escolher categoria…</option>${opts}</select><label class="row" style="gap:6px;font-size:13px"><input type="checkbox" id="rule-${t.id}" checked style="accent-color:var(--accent)"> sempre para ${esc(t.m.split('·')[1]?.trim() || t.m)}</label><button class="btn sm primary" data-fix="${t.id}">${ic('check')}Aplicar</button></div>`}
+    </div>`; }).join('')}
+  </section>`;
+};
+
+screens.cortes = () => {
+  const {t, unc, saved, rate} = spendSummary();
+  const goalAmt = INCOME * state.goal / 100;
+  const gap = Math.max(0, goalAmt - saved);
+  const flex = CATS.filter(c => c.flex && t[c.id] > 0).map(c => ({c, cur:t[c.id], excess:Math.max(0, t[c.id] - c.avg)}));
+  const sumEx = flex.reduce((s, f) => s + f.excess, 0);
+  const sumFlex = flex.reduce((s, f) => s + f.cur, 0);
+  flex.forEach(f => {
+    if (gap <= 0) f.cut = 0;
+    else if (sumEx >= gap) f.cut = f.excess * gap / sumEx;
+    else f.cut = Math.min(f.cur, f.excess + (gap - sumEx) * f.cur / (sumFlex || 1));
+  });
+  const totalCut = flex.reduce((s, f) => s + f.cut, 0);
+  const impossible = gap > sumFlex;
+  return `
+  <div class="head"><div>${title('scissors', 'Onde cortar')}<p>A partir da sua meta de economia, o sistema calcula quanto falta e distribui o corte entre os gastos flexíveis que mais passaram da sua própria média.</p></div></div>
+  <div class="two">
+    <section class="card">
+      <h2>${ic('target')}Sua meta</h2><p>Quanto da renda você quer guardar todo mês.</p>
+      <div class="row"><input type="range" min="5" max="40" step="1" id="goal" data-goal value="${state.goal}" style="flex:1;accent-color:var(--accent)" aria-label="Meta de economia"><b class="num" style="font-size:22px;min-width:56px;text-align:right;color:var(--accent-strong)">${state.goal}%</b></div>
+      <div class="pills" style="margin-top:14px"><span class="pill">${ic('target')}Meta <b class="num">${brl.format(goalAmt)}</b></span><span class="pill">${ic('piggy')}Guardado <b class="num">${brl.format(saved)}</b> (${pct(rate, 0)})</span></div>
+    </section>
+    <section class="card" style="background:${gap > 0 ? 'linear-gradient(140deg,var(--warn-soft),var(--surface) 70%)' : 'linear-gradient(140deg,var(--good-soft),var(--surface) 70%)'};border-color:${gap > 0 ? 'var(--warn)' : 'var(--good)'}">
+      <div class="label">${ic(gap > 0 ? 'alert' : 'check')}${gap > 0 ? 'Falta por mês' : 'Meta atingida'}</div>
+      <div class="big num" style="color:${gap > 0 ? 'var(--warn)' : 'var(--good)'}">${brl.format(gap > 0 ? gap : saved - goalAmt)}</div>
+      <p class="muted" style="margin:0">${gap > 0 ? (impossible ? 'Mais do que todos os gastos flexíveis somados. Para essa meta, seria preciso rever algum gasto fixo ou a renda.' : `Dá pra chegar lá cortando ${brl.format(totalCut)} em ${flex.filter(f => f.cut >= 1).length} categorias flexíveis.`) : 'Você guardou mais do que a meta. Esse valor pode ir direto para o aporte inteligente.'}</p>
+      ${gap <= 0 ? `<button class="btn sm primary" data-go="aporte" style="margin-top:12px">${ic('zap')}Ir para o aporte</button>` : ''}
+    </section>
+  </div>
+  ${gap > 0 ? `<section class="card" style="margin-top:16px">
+    <h2>${ic('scissors')}Sugestão de limites para outubro</h2><p>Começa pelo que subiu acima da sua média; só passa disso se ainda faltar.</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Categoria</th><th class="r">Setembro</th><th class="r">Sua média</th><th class="r">Cortar</th><th class="r">Limite sugerido</th></tr></thead>
+      <tbody>${flex.sort((a, b) => b.cut - a.cut).map(f => `<tr>
+        <td><span class="who">${catTile(f.c)}<span class="cname">${f.c.name}</span></span></td><td class="r num">${brl.format(f.cur)}</td><td class="r num muted">${brl.format(f.c.avg)}</td>
+        <td class="r num" style="color:${f.cut >= 1 ? 'var(--warn)' : 'var(--ink-2)'};font-weight:600">${f.cut >= 1 ? '−' + brl.format(f.cut) : '—'}</td>
+        <td class="r num"><b>${brl.format(f.cur - f.cut)}</b></td></tr>`).join('')}</tbody>
+    </table></div>
+  </section>` : ''}
+  ${unc > 0 ? `<p class="note" style="margin-top:14px">${ic('help')}<span><b>${brl.format(unc)} sem categoria</b> ficaram de fora da conta. <button class="btn sm" data-go="transacoes" style="margin-left:6px">Categorizar</button></span></p>` : ''}`;
+};
+
+const STEPS = [
+  {k:'s1', t:'Crie sua conta no Meu Pluggy', url:'https://meu.pluggy.ai', body:[
+    'Cadastre-se com seu e-mail. É aqui que ficam suas conexões com os bancos e os consentimentos do Open Finance.'
+  ]},
+  {k:'s2', t:'Conecte cada banco pelo Open Finance', url:'https://meu.pluggy.ai', body:[
+    'Clique no botão principal de conexão e busque o seu banco.',
+    'Você é levado ao app ou site do banco para autorizar o compartilhamento. A senha do banco nunca passa pela Vera nem pela Pluggy.',
+    'Repita para cada banco e cartão (ex.: Nubank, Itaú).'
+  ]},
+  {k:'s3', t:'Crie a conta de desenvolvedor na Pluggy', url:'https://dashboard.pluggy.ai', body:[
+    'O cadastro libera um período de teste de 15 dias. O acesso aos dados continua depois dele.',
+    'Na aplicação, inclua o <b>MeuPluggy</b> na lista de conectores.',
+    'Crie uma aplicação de desenvolvimento: ela mostra o <span class="kbd">Client ID</span> e o <span class="kbd">Client Secret</span>.'
+  ], warn:'Faça os passos 3 a 5 dentro dos 15 dias de teste: depois disso a configuração fica somente leitura e não dá pra autorizar bancos novos.'},
+  {k:'s4', t:'Autorize o Meu Pluggy na aplicação', url:'https://dashboard.pluggy.ai', body:[
+    'Na sua aplicação, clique em <span class="kbd">Ir para Demo</span>.',
+    'Escolha o conector MeuPluggy e entre com a conta do passo 1 (autorização OAuth).',
+    'Autorize <b>uma vez por banco conectado</b>, não por conta.'
+  ]},
+  {k:'s5', t:'Copie o Item ID de cada banco', url:null, body:[
+    'Ainda na Demo, abra o menu <span class="kbd">⋯</span> no canto superior direito e clique em <span class="kbd">Copiar Item ID</span>.',
+    'Guarde um Item ID para cada banco autorizado.'
+  ]},
+  {k:'s6', t:'Cole as credenciais aqui', url:null, body:[
+    'Preencha o formulário ao lado e clique em <b>Testar e conectar</b>. O Client Secret é cifrado e não aparece de novo.'
+  ]}
+];
+
+screens.conexoes = () => {
+  const st = state.pluggy;
+  return `
+  <div class="head"><div>${title('plug', 'Conexões')}<p>Seus extratos chegam pelo Open Finance usando a sua própria conta gratuita no Meu Pluggy, ou por arquivo exportado do banco.</p></div></div>
+  <div class="split">
+    <section class="card">
+      <h2>${ic('key')}Passo a passo do Meu Pluggy</h2><p>Uns 10 a 15 minutos, uma vez só. Marque cada passo conforme for fazendo.</p>
+      <ol class="howto">${STEPS.map(s => `<li class="${state.done[s.k] ? 'done' : ''}">
+        <div>
+          <h4>${s.t}${s.url ? `<a class="url" href="${s.url}" target="_blank" rel="noopener">${s.url.replace('https://', '')}${ic('external')}</a>` : ''}</h4>
+          <ul>${s.body.map(b => `<li>${b}</li>`).join('')}</ul>
+          ${s.warn ? `<div class="warnbox">${ic('alert')}<span>${s.warn}</span></div>` : ''}
+          <label class="row" style="gap:6px;font-size:12.5px;margin-top:8px;color:var(--ink-2)"><input type="checkbox" data-done="${s.k}" id="done-${s.k}" ${state.done[s.k] ? 'checked' : ''} style="accent-color:var(--accent)"> feito</label>
+        </div></li>`).join('')}</ol>
+      <p class="note" style="margin:6px 0 0">${ic('info')}<span>Referência oficial: <a href="https://github.com/pluggyai/meu-pluggy" target="_blank" rel="noopener">github.com/pluggyai/meu-pluggy</a>. Dúvidas sobre a Pluggy: comunidade no Discord deles.</span></p>
+    </section>
+    <div class="grid">
+      <section class="card">
+        <h2>${ic('landmark')}Suas credenciais</h2>
+        ${st === 'ok' ? `<p>Bancos conectados pelo Meu Pluggy.</p>
+          <div class="conn"><span class="bank" style="background:#8a05be">Nu</span><span><b>Nubank</b><span class="sub">Cartão e conta · atualizado hoje, 06:10</span></span><span class="chip ok" style="margin-left:auto">${ic('check')}ativo</span></div>
+          <div class="conn"><span class="bank" style="background:#ec7000">It</span><span><b>Itaú</b><span class="sub">Conta corrente · atualizado hoje, 06:10</span></span><span class="chip ok" style="margin-left:auto">${ic('check')}ativo</span></div>
+          <button class="btn sm ghost" data-pluggy-reset style="margin-top:8px">${ic('key')}Trocar credenciais</button>`
+        : `<p>Do passo 3 e do passo 5.</p><form id="pluggy-form" class="grid" style="gap:12px">
+          <div class="field"><label for="cid">Client ID</label><input class="input" id="cid" autocomplete="off" placeholder="ex.: 3f9a1c2e-…" required></div>
+          <div class="field"><label for="csec">Client Secret</label><input class="input" id="csec" type="password" autocomplete="off" required></div>
+          <div class="field"><label for="items">Item IDs, separados por vírgula</label><input class="input" id="items" autocomplete="off" placeholder="ex.: 8b2c…, 41de…" required></div>
+          <div class="row"><button class="btn primary" type="submit">${ic('plug')}${st === 'testing' ? 'Testando…' : 'Testar e conectar'}</button><button class="btn ghost" type="button" data-pluggy-demo>Preencher exemplo</button></div>
+        </form>`}
+        <p class="note" style="margin:14px 0 0">${ic('shield')}<span>O código é aberto: dá pra conferir o que é feito com as credenciais, ou rodar tudo no seu servidor.</span></p>
+      </section>
+      <section class="card">
+        <h2>${ic('upload')}Importar arquivo</h2><p>Funciona com qualquer banco: OFX, CSV ou fatura do cartão.</p>
+        <div class="field"><label for="ofx">Arquivo do banco</label><input class="input" id="ofx" type="file" accept=".ofx,.csv,.txt,.pdf"></div>
+        ${state.imported ? `<p class="note" style="margin-top:12px">${ic('check')}<span><b>${esc(state.imported)}</b> lido (protótipo: o arquivo não é processado de verdade).</span></p>` : ''}
+      </section>
+    </div>
+  </div>`;
+};
+
+function rfCalc(f) {
+  const years = Math.max(0, (new Date('2026-10-09T12:00:00') - new Date(f.date + 'T12:00:00')) / (365.25 * 864e5));
+  const yr = f.idx === 'cdi' ? CDI * f.rate / 100 : f.idx === 'pre' ? f.rate / 100 : (1.045 * (1 + f.rate / 100) - 1);
+  const value = f.applied * Math.pow(1 + yr, years);
+  const cls = f.idx === 'cdi' ? 'rf_pos' : f.idx === 'pre' ? 'rf_pre' : 'rf_ipca';
+  const label = f.idx === 'cdi' ? `${f.rate}% do CDI` : f.idx === 'pre' ? `pré ${f.rate}% a.a.` : `IPCA + ${f.rate}%`;
+  const src = f.idx === 'ipca' ? 'IPCA + taxa (BC)' : f.idx === 'pre' ? 'Taxa contratada' : 'Curva do CDI (BC)';
+  return {value, cls, label, src, years, yr};
+}
+
+const TYPES = [
+  {id:'rf', name:'Renda fixa', d:'CDB, LCI, LCA, LC, debêntures', icon:'percent', cls:'rf_pos', mode:'rf'},
+  {id:'tesouro', name:'Tesouro Direto', d:'Selic, Prefixado, IPCA+', icon:'landmark', cls:'rf_ipca'},
+  {id:'acoes_br', name:'Ações brasileiras', d:'ações e ETFs da B3', icon:'bars', cls:'acoes_br'},
+  {id:'fii', name:'Fundos imobiliários', d:'FIIs da B3', icon:'building', cls:'fii'},
+  {id:'acoes_eua', name:'Ações americanas', d:'ações, ETFs e BDRs', icon:'globe', cls:'acoes_eua'},
+  {id:'reits', name:'REITs', d:'imóveis nos EUA', icon:'home', cls:'reits'},
+  {id:'cripto', name:'Criptomoedas', d:'Bitcoin, Ethereum e outras', icon:'hexagon', cls:'cripto'}
+];
+const TYPEMAP = Object.fromEntries(TYPES.map(t => [t.id, t]));
+const typeOfCatalog = a => a.type === 'Tesouro' ? 'tesouro' : a.cls;
+const typeOfPosition = p => p.kind === 'rf' ? 'rf' : /^Tesouro/.test(p.ticker) ? 'tesouro' : p.cls;
+const typeCards = (attr) => `<div class="typegrid">${TYPES.map(t => { const n = positions.filter(p => typeOfPosition(p) === t.id).length; return `<button class="typecard" ${attr}="${t.id}">${n ? `<span class="cnt">${n}</span>` : ''}<span class="tile" style="${tint(t.cls)}">${ic(t.icon)}</span><span><b>${t.name}</b><span class="d">${t.d}</span></span></button>`; }).join('')}</div>`;
+
+function openAdd(cls, opts = {}) {
+  const fromCls = cls ? (cls.startsWith('rf_') ? null : cls) : null;
+  const m = {q:'', pick:null, type: opts.type || fromCls, qty:null, pickCls:null,
+    rf:{name:'CDB Banco XP', idx:'cdi', rate:105, applied:50000, date:'2025-03-10', mat:'2028-03-10'}};
+  const root = document.getElementById('modal-root');
+  const rvPreview = () => {
+    const p = m.pick;
+    if (!p) return `<div class="empty">${ic(TYPEMAP[m.type].icon)}<p>Escolha um ativo na lista para informar a quantidade.</p></div>`;
+    const qty = m.qty ?? (p.cls === 'cripto' ? 0.1 : p.type === 'Tesouro' ? 1 : 100);
+    const c = m.pickCls || p.cls;
+    const v = qty * p.price * (p.cur === 'USD' ? FX : 1);
+    return `<div class="preview">
+      <div class="ptitle"><span class="tile" style="${tint(c)}">${ic(CLS[c].icon)}</span><span><b>${p.ticker}</b><span class="muted">${p.name}</span></span></div>
+      <div class="pills"><span class="pill">${p.type}</span><span class="pill">${ic('dollar')}${p.cur === 'USD' ? usd2.format(p.price) : brl2.format(p.price)}</span><span class="pill">${p.src}</span></div>
+      <div class="formgrid">
+        <div class="field"><label for="add-qty">Quantidade</label><input class="input num" id="add-qty" type="number" min="0" step="any" value="${qty}"></div>
+        <div class="field"><label for="add-cls">Classe</label><select class="input" id="add-cls">${CLASSES.map(x => `<option value="${x.id}" ${x.id === c ? 'selected' : ''}>${x.name}</option>`).join('')}</select></div>
+      </div>
+      <div class="pvalue"><div class="label">Valor hoje</div><div class="big num" id="pv">${brl.format(v)}</div><span class="muted" style="font-size:12.5px">atualizado todo dia ${p.type === 'Tesouro' ? 'pelo preço oficial do Tesouro' : 'pela cotação'}</span></div>
+      ${p.flag ? `<p class="note" style="margin:0">${ic('info')}<span>${p.flag}, por isso entra em <b>${CLS[p.cls].name}</b>. Você pode trocar a classe.</span></p>` : ''}
+    </div>`;
+  };
+  const rfPreview = () => {
+    const r = rfCalc(m.rf);
+    return `<div class="preview">
+      <div class="ptitle"><span class="tile" style="${tint(r.cls)}">${ic(CLS[r.cls].icon)}</span><span><b>${esc(m.rf.name || 'Título')}</b><span class="muted">${r.label}</span></span></div>
+      <div class="pvalue"><div class="label">Valor estimado hoje</div><div class="big num">${brl.format(r.value)}</div><span class="muted" style="font-size:12.5px">${brl.format(m.rf.applied)} aplicados há ${r.years.toFixed(1).replace('.', ',')} anos · ${pct(r.yr * 100)} a.a.</span></div>
+      <div class="pills"><span class="pill">${ic('target')}${CLS[r.cls].name}</span><span class="pill">${ic('landmark')}${r.src}</span><span class="pill">${ic('calendar')}vence ${m.rf.mat.split('-').reverse().join('/')}</span></div>
+      <p class="note" style="margin:0">${ic('info')}<span>O sistema recalcula esse valor todo dia com as séries do Banco Central. Você nunca precisa atualizar o saldo à mão.</span></p>
+    </div>`;
+  };
+  const draw = () => {
+    const t = m.type ? TYPEMAP[m.type] : null;
+    const isRf = t && t.mode === 'rf';
+    const results = t && !isRf ? CATALOG.filter(a => typeOfCatalog(a) === t.id).filter(a => (a.ticker + ' ' + a.name).toLowerCase().includes(m.q.toLowerCase())) : [];
+    const head = t
+      ? `<h3 id="add-title"><button class="iconbtn" data-back aria-label="Voltar aos tipos" style="color:var(--accent-strong)">${ic('left')}</button><span class="tile" style="${tint(t.cls)}">${ic(t.icon)}</span>${t.name}</h3>`
+      : `<h3 id="add-title"><span class="tile" style="background:var(--accent);color:#fff">${ic('plus')}</span>O que você quer adicionar?</h3>`;
+    const body = !t
+      ? `<div class="sheet-single"><p class="muted" style="margin:0 0 16px">Escolha o tipo de investimento. Você pode adicionar quantos quiser, um de cada vez.</p>${typeCards('data-type')}</div>`
+      : `<div class="sheet-body">
+        <div class="sheet-left">${isRf ? `
+          <div class="formgrid">
+            <div class="field" style="grid-column:1 / -1"><label for="rf-name">Nome do título</label><input class="input" id="rf-name" data-rf="name" value="${esc(m.rf.name)}"></div>
+            <div class="field"><label for="rf-idx">Indexador</label><select class="input" id="rf-idx" data-rf="idx"><option value="cdi" ${m.rf.idx === 'cdi' ? 'selected' : ''}>% do CDI</option><option value="pre" ${m.rf.idx === 'pre' ? 'selected' : ''}>Prefixado</option><option value="ipca" ${m.rf.idx === 'ipca' ? 'selected' : ''}>IPCA +</option></select></div>
+            <div class="field"><label for="rf-rate">${m.rf.idx === 'cdi' ? 'Percentual do CDI' : 'Taxa ao ano (%)'}</label><input class="input num" id="rf-rate" data-rf="rate" type="number" step="0.01" value="${m.rf.rate}"></div>
+            <div class="field"><label for="rf-applied">Valor aplicado (R$)</label><input class="input num" id="rf-applied" data-rf="applied" type="number" step="100" value="${m.rf.applied}"></div>
+            <div class="field"><label for="rf-date">Data da aplicação</label><input class="input" id="rf-date" data-rf="date" type="date" value="${m.rf.date}"></div>
+            <div class="field"><label for="rf-mat">Vencimento</label><input class="input" id="rf-mat" data-rf="mat" type="date" value="${m.rf.mat}"></div>
+          </div>
+          <p class="note" style="margin:0">${ic('info')}<span>Tem Tesouro Direto? Volte e escolha o card "Tesouro Direto": lá você informa só a quantidade de títulos.</span></p>
+        ` : `
+          <div class="searchbox">${ic('search')}<input class="input" id="q" placeholder="Busque por ticker ou nome" value="${esc(m.q)}" autocomplete="off" aria-label="Buscar ${t.name}"></div>
+          <div class="results">${results.map(a => `<button class="result" data-pick="${a.ticker}" aria-pressed="${m.pick && m.pick.ticker === a.ticker}"><span class="tile" style="${tint(a.cls)}">${ic(CLS[a.cls].icon)}</span><span><b>${a.ticker}</b> <span class="muted">${a.name}</span><span class="sub">${a.type} · ${a.cur === 'USD' ? usd2.format(a.price) : brl2.format(a.price)}</span></span>${a.flag ? `<span class="chip plain">${a.type}</span>` : ''}</button>`).join('') || '<p class="muted">Nada encontrado no catálogo de exemplo.</p>'}</div>
+        `}</div>
+        <div class="sheet-right" id="preview">${isRf ? rfPreview() : rvPreview()}</div>
+      </div>`;
+    root.innerHTML = `<div class="modal" data-close-bg><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="add-title" style="${t ? '' : 'height:auto'}">
+      <div class="sheet-head">${head}<button class="iconbtn" data-close aria-label="Fechar">${ic('x')}</button></div>
+      ${body}
+      <div class="sheet-foot"><button class="btn ghost" data-close>Cancelar</button>${t ? `<button class="btn primary" data-save ${!isRf && !m.pick ? 'disabled' : ''}>${ic('plus')}Adicionar à carteira</button>` : ''}</div>
+    </div></div>`;
+    const q = root.querySelector('#q');
+    if (q && m.focusQ) { q.focus(); q.setSelectionRange(q.value.length, q.value.length); }
+  };
+  const close = () => { root.innerHTML = ''; root.onclick = null; root.oninput = null; };
+  root.onclick = e => {
+    const el = e.target.closest('[data-close],[data-type],[data-back],[data-pick],[data-save]');
+    if (!el) { if (e.target.hasAttribute('data-close-bg')) close(); return; }
+    m.focusQ = false;
+    if (el.hasAttribute('data-close')) return close();
+    if (el.dataset.type) { m.type = el.dataset.type; m.pick = null; m.q = ''; m.focusQ = true; return draw(); }
+    if (el.hasAttribute('data-back')) { m.type = null; m.pick = null; return draw(); }
+    if (el.dataset.pick) { m.pick = CATALOG.find(a => a.ticker === el.dataset.pick); m.qty = null; m.pickCls = null; return draw(); }
+    if (el.hasAttribute('data-save')) save();
+  };
+  root.oninput = e => {
+    const el = e.target;
+    if (el.id === 'q') { m.q = el.value; m.focusQ = true; return draw(); }
+    if (el.id === 'add-qty') { m.qty = Number(el.value) || 0; const p = m.pick; root.querySelector('#pv').textContent = brl.format(m.qty * p.price * (p.cur === 'USD' ? FX : 1)); return; }
+    if (el.id === 'add-cls') { m.pickCls = el.value; root.querySelector('#preview').innerHTML = rvPreview(); return; }
+    if (el.dataset.rf) {
+      const k = el.dataset.rf;
+      m.rf[k] = ['rate', 'applied'].includes(k) ? (Number(el.value) || 0) : el.value;
+      if (k === 'idx') { m.rf.rate = el.value === 'cdi' ? 105 : el.value === 'pre' ? 12.5 : 6.2; return draw(); }
+      root.querySelector('#preview').innerHTML = rfPreview();
+    }
+  };
+  const save = () => {
+    if (TYPEMAP[m.type].mode !== 'rf') {
+      if (!m.pick) return;
+      const p = m.pick, qty = m.qty ?? (p.cls === 'cripto' ? 0.1 : p.type === 'Tesouro' ? 1 : 100), c = m.pickCls || p.cls;
+      positions.push({id:nextId++, ticker:p.ticker, name:p.name, cls:c, kind:'rv', qty, price:p.price, cur:p.cur, src:p.src, usdExp:p.usdExp, flag:p.flag});
+      toast(`${p.ticker} adicionado em ${CLS[c].name}`);
+    } else {
+      const r = rfCalc(m.rf);
+      positions.push({id:nextId++, ticker:m.rf.name || 'Título', name:r.label, cls:r.cls, kind:'rf', value:r.value, cur:'BRL', src:r.src});
+      toast(`${m.rf.name}: ${brl.format(r.value)} hoje, em ${CLS[r.cls].name}`);
+    }
+    close(); render();
+  };
+  m.focusQ = !!m.type;
+  draw();
+}
+
+const hasSpend = () => state.sample || state.pluggy === 'ok' || !!state.imported;
+const emptyState = (icon, h, p, actions) => `<section class="card"><div class="empty" style="padding:56px 20px">${ic(icon)}<h3 style="margin:0;font-family:var(--f-display);font-size:22px;color:var(--ink)">${h}</h3><p style="margin:0;max-width:48ch">${p}</p><div class="row" style="justify-content:center;margin-top:6px">${actions}</div></div></section>`;
+const sampleBtn = `<button class="btn" data-onb="sample">${ic('sparkle')}Explorar com dados de exemplo</button>`;
+
+function gate(screen) {
+  const pat = {visao:['pie', 'Seu patrimônio'], ativos:['wallet', 'Meus ativos'], aporte:['zap', 'Aporte inteligente'], classe:['pie', 'Seu patrimônio']};
+  const gas = {gastos:['receipt', 'Resumo do mês'], transacoes:['list', 'Transações'], cortes:['scissors', 'Onde cortar']};
+  if (pat[screen] && positions.length === 0) {
+    return `<div class="head"><div>${title(...pat[screen])}</div></div>` + emptyState('wallet', 'Sua carteira ainda está vazia',
+      'Cadastre o que você tem (ações, FIIs, renda fixa, ativos nos EUA, cripto) informando só a quantidade. A distribuição e a comparação com a sua meta aparecem na hora.',
+      `<button class="btn primary" data-add="">${ic('plus')}Adicionar primeiro ativo</button>${sampleBtn}`);
+  }
+  if (gas[screen] && !hasSpend()) {
+    return `<div class="head"><div>${title(...gas[screen])}</div></div>` + emptyState('plug', 'Nenhum gasto por aqui ainda',
+      'Conecte seus bancos pelo Meu Pluggy ou importe um extrato do banco. A partir daí, os gastos chegam sozinhos e já categorizados.',
+      `<button class="btn primary" data-go="conexoes">${ic('plug')}Conectar bancos</button>${sampleBtn}`);
+  }
+  return '';
+}
+
+const ONB = ['Boas-vindas', 'Patrimônio', 'Gastos', 'Pronto'];
+const WHY = (items) => `<p class="whyh">Por que essa etapa existe</p><ul class="why">${items.map(([i, b, d]) => `<li><span class="tile">${ic(i)}</span><span><b>${b}</b><span class="d">${d}</span></span></li>`).join('')}</ul>`;
+
+function onbHTML() {
+  const o = state.onb, s = o.step;
+  const stepState = i => i < s ? (i === 1 && o.skipped.assets || i === 2 && o.skipped.pluggy ? 'skip' : 'done') : i === s ? 'cur' : '';
+  const prog = `<div class="onb-prog" aria-label="Progresso">${ONB.map((t, i) => `<span class="${stepState(i)}"><b>${stepState(i) === 'done' ? '✓' : stepState(i) === 'skip' ? '–' : i + 1}</b><em style="font-style:normal">${t}</em></span>`).join('<i></i>')}</div>`;
+  let body = '';
+  if (s === 0) body = `<div class="onb-grid">
+    <div>
+      <span class="eyebrow">${ic('sparkle')}Bem-vinda à Vera</span>
+      <h2 class="display">Seu patrimônio e seus gastos, <em>de verdade</em>.</h2>
+      <p class="lead">A Vera responde duas perguntas: o dinheiro que você investiu está distribuído do jeito que você quer? E para onde vai o dinheiro que você gasta todo mês?</p>
+      <p class="lead" style="margin-bottom:0">A configuração tem duas etapas. <b style="color:var(--ink)">As duas são opcionais</b>: dá pra pular qualquer uma e fazer depois.</p>
+    </div>
+    <div class="pathcards">
+      <div class="pathcard"><span class="tile" style="background:var(--accent-soft);color:var(--accent-strong)">${ic('wallet')}</span><span><b>1. Cadastrar seus ativos</b><span class="d">Para ver a distribuição da carteira, comparar com a sua meta e saber onde aportar.</span></span><span class="chip plain">~5 min</span></div>
+      <div class="pathcard"><span class="tile" style="background:#fff0e8;color:var(--c-fii)">${ic('plug')}</span><span><b>2. Conectar seus bancos</b><span class="d">Para os gastos chegarem sozinhos, categorizados, com sugestões de onde cortar.</span></span><span class="chip plain">~15 min</span></div>
+      <div class="onb-foot" style="border:0;padding-top:4px"><button class="btn ghost" data-onb="sample">${ic('sparkle')}Só explorar com dados de exemplo</button><button class="btn primary" data-onb="next" style="padding:11px 20px;font-size:15px">Começar ${ic('left').replace('class="i"', 'class="i" style="transform:rotate(180deg)"')}</button></div>
+    </div>
+  </div>`;
+  if (s === 1) {
+    const total = positions.reduce((t, p) => t + valueBRL(p), 0);
+    body = `<div class="onb-grid wide">
+    <div>
+      <span class="eyebrow">${ic('wallet')}Etapa 1 de 2 · opcional</span>
+      <h2 class="display">Cadastre seus investimentos</h2>
+      <p class="lead">Informe o que você tem e onde. A Vera soma tudo, em reais ou em dólar, e compara com a carteira que você considera ideal.</p>
+      ${WHY([
+        ['globe', 'Ver tudo somado', 'Brasil, EUA e cripto numa moeda só, separados por tipo: renda fixa, ações, FIIs, REITs, cripto.'],
+        ['target', 'Comparar com a sua meta', 'Ex.: "você tem 18% em ações dos EUA e queria 25%". Sem saber o que você tem, não há o que comparar.'],
+        ['zap', 'Saber onde aportar', 'O aporte inteligente divide cada novo aporte para aproximar a carteira da meta, sem vender nada.']
+      ])}
+      <p class="note">${ic('info')}<span><b>Por que o cadastro é manual?</b> Não existe forma gratuita e confiável de puxar posições de todas as corretoras, bancos de fora e exchanges. Você informa só a quantidade; os valores se atualizam sozinhos todo dia pela cotação ou pelo indexador.</span></p>
+    </div>
+    <section class="card">
+      <h2>${ic('plus')}Adicione seus ativos</h2><p>Escolha um tipo de investimento. Comece pelos maiores; dá pra completar depois em "Meus ativos".</p>
+      <div class="addsplit"><div>${typeCards('data-add-type')}</div>
+      <aside class="wallet">
+        <div class="row between"><p class="whyh" style="margin:0">Sua carteira (${positions.length})</p>${positions.length ? `<b class="num">${brl.format(total)}</b>` : ''}</div>
+        ${positions.length ? `<div class="added">${positions.map(p => `<div class="item"><span class="who"><span class="tile" style="${tint(p.cls)}">${ic(CLS[p.cls].icon)}</span><span><span class="cname">${esc(p.ticker)}</span><span class="sub">${CLS[p.cls].name}${p.kind === 'rv' ? ' · ' + nf.format(p.qty) + (p.cls === 'cripto' ? ' un.' : ' cotas') : ''}</span></span></span><span class="num">${brl.format(valueBRL(p))}</span><button class="iconbtn" data-del="${p.id}" aria-label="Remover ${esc(p.ticker)}">${ic('trash')}</button></div>`).join('')}</div>`
+        : `<div class="empty" style="padding:22px 10px;height:auto">${ic('wallet')}<p style="margin:0">Nenhum ativo ainda. Escolha um tipo ao lado.</p></div>`}
+      </aside></div>
+      <div class="onb-foot"><button class="btn ghost" data-onb="back">${ic('left')}Voltar</button><div class="row">${positions.length ? `<button class="btn ghost" data-onb="skip">Pular</button><button class="btn primary" data-onb="next">Continuar com ${positions.length} ${positions.length > 1 ? 'ativos' : 'ativo'}</button>` : `<button class="btn primary" data-onb="skip">Pular por enquanto</button>`}</div></div>
+    </section>
+  </div>`;
+  }
+  if (s === 2) {
+    const ok = state.pluggy === 'ok', imp = !!state.imported;
+    body = `<div class="onb-grid">
+    <div>
+      <span class="eyebrow">${ic('plug')}Etapa 2 de 2 · opcional</span>
+      <h2 class="display">Conecte seus bancos</h2>
+      <p class="lead">Com os bancos conectados, cada gasto do cartão e da conta entra na Vera sozinho. Você não digita nada.</p>
+      ${WHY([
+        ['receipt', 'Gastos chegam sozinhos', 'Cartão de crédito e conta corrente, atualizados todo dia, sem planilha.'],
+        ['list', 'Categorias automáticas', 'Mercado, delivery, transporte e assinaturas são reconhecidos. Você só ensina o que for novo, uma vez.'],
+        ['scissors', 'Sugestões de onde cortar', 'Com o histórico, a Vera compara cada categoria com a sua média e mostra onde economizar para bater sua meta.']
+      ])}
+      <p class="note">${ic('shield')}<span><b>Por que pelo Meu Pluggy?</b> O Open Finance só entrega dados a instituições autorizadas pelo Banco Central. O Meu Pluggy é a ponte gratuita: você conecta seus bancos lá e autoriza a leitura. Sua senha do banco nunca passa pela Vera, e o acesso é só de leitura.</span></p>
+    </div>
+    <section class="card">
+      ${ok ? `<h2>${ic('check')}Bancos conectados</h2><p>Seus gastos dos últimos meses já estão chegando.</p>
+        <div class="conn"><span class="bank" style="background:#8a05be">Nu</span><span><b>Nubank</b><span class="sub">Cartão e conta</span></span><span class="chip ok" style="margin-left:auto">${ic('check')}ativo</span></div>
+        <div class="conn"><span class="bank" style="background:#ec7000">It</span><span><b>Itaú</b><span class="sub">Conta corrente</span></span><span class="chip ok" style="margin-left:auto">${ic('check')}ativo</span></div>`
+      : `<h2>${ic('key')}Em 4 passos</h2><p>Uns 15 minutos, uma vez só. O passo a passo detalhado fica sempre em "Conexões".</p>
+        <ol class="ministeps">
+          <li>Crie sua conta e conecte seus bancos em <a href="https://meu.pluggy.ai" target="_blank" rel="noopener">meu.pluggy.ai</a>.</li>
+          <li>Crie a conta de desenvolvedor em <a href="https://dashboard.pluggy.ai" target="_blank" rel="noopener">dashboard.pluggy.ai</a> e uma aplicação com o conector MeuPluggy.</li>
+          <li>Na Demo da aplicação, autorize o Meu Pluggy uma vez por banco e copie cada <span class="kbd">Item ID</span>.</li>
+          <li>Cole abaixo o <span class="kbd">Client ID</span>, o <span class="kbd">Client Secret</span> e os Item IDs.</li>
+        </ol>
+        <div class="warnbox">${ic('alert')}<span>O painel da Pluggy dá <b>15 dias de teste</b>. Conecte todos os bancos dentro desse prazo; depois a configuração fica somente leitura.</span></div>
+        <form id="onb-pluggy-form" class="grid" style="gap:12px;margin-top:16px">
+          <div class="formgrid"><div class="field"><label for="ocid">Client ID</label><input class="input" id="ocid" autocomplete="off" required></div>
+          <div class="field"><label for="ocsec">Client Secret</label><input class="input" id="ocsec" type="password" autocomplete="off" required></div></div>
+          <div class="field"><label for="oitems">Item IDs, separados por vírgula</label><input class="input" id="oitems" autocomplete="off" required></div>
+          <div class="row"><button class="btn primary" type="submit">${ic('plug')}${state.pluggy === 'testing' ? 'Testando…' : 'Testar e conectar'}</button><button class="btn ghost" type="button" data-onb="fill">Preencher exemplo</button></div>
+        </form>
+        <div style="margin-top:16px;padding-top:14px;border-top:1px dashed var(--line)">
+          <div class="field"><label for="onb-ofx">${ic('upload')} Prefere não conectar? Importe um extrato (OFX ou CSV)</label><input class="input" id="onb-ofx" type="file" accept=".ofx,.csv,.txt,.pdf"></div>
+          ${imp ? `<p class="note" style="margin:10px 0 0">${ic('check')}<span><b>${esc(state.imported)}</b> lido (protótipo).</span></p>` : ''}
+        </div>`}
+      <div class="onb-foot"><button class="btn ghost" data-onb="back">${ic('left')}Voltar</button><div class="row">${ok || imp ? `<button class="btn primary" data-onb="next">Continuar</button>` : `<button class="btn primary" data-onb="skip">Pular por enquanto</button>`}</div></div>
+    </section>
+  </div>`;
+  }
+  if (s === 3) {
+    const total = positions.reduce((t, p) => t + valueBRL(p), 0);
+    const spend = state.pluggy === 'ok' ? 'Nubank e Itaú conectados pelo Meu Pluggy' : state.imported ? `Extrato ${esc(state.imported)} importado` : '';
+    const row = (ok, icon, t, d, btn) => `<div class="srow"><span class="tile" style="background:${ok ? 'var(--good-soft)' : 'var(--surface-2)'};color:${ok ? 'var(--good)' : 'var(--ink-2)'}">${ic(ok ? 'check' : icon)}</span><span><b>${t}</b><span class="sub">${d}</span></span>${btn || ''}</div>`;
+    body = `<div class="done-hero">
+      <div class="burst">${ic('check')}</div>
+      <h2 class="display">${positions.length || spend ? 'Tudo pronto' : 'Pronto para começar'}</h2>
+      <p class="lead" style="margin-inline:auto">${positions.length || spend ? 'Veja o que já está configurado. O que ficou para depois pode ser feito a qualquer momento.' : 'Você pulou as duas etapas, sem problema. A Vera mostra onde começar quando você quiser.'}</p>
+      <div class="summary" style="text-align:left">
+        ${row(positions.length > 0, 'wallet', positions.length ? `${positions.length} ${positions.length > 1 ? 'ativos cadastrados' : 'ativo cadastrado'} · ${brl.format(total)}` : 'Ativos: para depois', positions.length ? 'A distribuição e a comparação com a meta já estão na Visão geral.' : 'Cadastre quando quiser em "Meus ativos".', positions.length ? '' : `<button class="btn sm" data-onb="goto-1">Cadastrar agora</button>`)}
+        ${row(!!spend, 'plug', spend || 'Bancos: para depois', spend ? 'Seus gastos aparecem em "Resumo do mês".' : 'Conecte quando quiser em "Conexões" ou importe um extrato.', spend ? '' : `<button class="btn sm" data-onb="goto-2">Conectar agora</button>`)}
+        ${row(true, 'target', 'Carteira-alvo moderada como ponto de partida', 'Uma distribuição inicial para comparar. Ajuste para a sua visão em "Carteira-alvo".', `<button class="btn sm" data-onb="finish-meta">Ajustar</button>`)}
+      </div>
+      <div class="row" style="justify-content:center;margin-top:24px"><button class="btn primary" data-onb="finish" style="padding:12px 22px;font-size:15px">${ic('pie')}Ir para o painel</button></div>
+    </div>`;
+  }
+  return `<div class="onb" role="dialog" aria-modal="true" aria-label="Configuração inicial">
+    <div class="onb-top"><div class="brand"><span class="logo"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.8 6 L12 19.2 L19.2 6" fill="none" stroke="#fff" stroke-width="2.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="8.6" r="2.2" fill="#fff"/></svg></span><div><b>vera</b></div></div>${s > 0 && s < 3 ? prog : '<span></span>'}${s < 3 ? `<button class="btn ghost sm" data-onb="close">Pular configuração ${ic('x')}</button>` : '<span></span>'}</div>
+    <div class="onb-body">${body}</div>
+  </div>`;
+}
+
+const LOGIN_PHOTO = 'vera-login.jpg';
+const GOOGLE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.4h6.5a5.6 5.6 0 0 1-2.4 3.6v3h3.9c2.3-2.1 3.5-5.2 3.5-8.7z"/><path fill="#34A853" d="M12 24c3.2 0 6-1.1 7.9-2.9l-3.9-3c-1.1.7-2.4 1.2-4 1.2-3.1 0-5.7-2.1-6.6-4.9h-4v3.1A12 12 0 0 0 12 24z"/><path fill="#FBBC05" d="M5.4 14.4a7.2 7.2 0 0 1 0-4.7V6.6h-4a12 12 0 0 0 0 10.8l4-3z"/><path fill="#EA4335" d="M12 4.8c1.8 0 3.3.6 4.6 1.8l3.4-3.4A12 12 0 0 0 1.4 6.6l4 3.1C6.3 6.9 8.9 4.8 12 4.8z"/></svg>';
+const FACEBOOK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#fff" d="M24 12a12 12 0 1 0-13.9 11.9v-8.4H7.1V12h3V9.4c0-3 1.8-4.7 4.5-4.7 1.3 0 2.7.2 2.7.2v3h-1.5c-1.5 0-2 .9-2 1.9V12h3.4l-.5 3.5h-2.9v8.4A12 12 0 0 0 24 12z"/></svg>';
+
+function renderLogin() {
+  const root = document.getElementById('login-root');
+  const ub = document.getElementById('userbox');
+  ub.innerHTML = state.user ? `<span class="avatar">${state.user.name[0]}</span><span class="meta"><b>${state.user.name}</b><span>via ${state.user.provider}</span></span><button class="logout" data-logout aria-label="Sair" title="Sair">${ic('logout')}</button>` : '';
+  if (state.auth) { root.innerHTML = ''; return; }
+  root.innerHTML = `<div class="login" role="dialog" aria-modal="true" aria-label="Entrar na Vera">
+    <div class="login-photo" aria-hidden="true">
+      <div class="photo-slot" id="login-photo">${LOGIN_PHOTO ? `<img src="${LOGIN_PHOTO}" alt="">` : `<div class="photo-ph">${ic('sparkle')}<span>Imagem gerada por IA: mulher usando o celular</span></div>`}</div>
+      <div class="photo-overlay"></div>
+      <div class="photo-mark"><svg width="30" height="30" viewBox="0 0 24 24"><path d="M4.8 6 L12 19.2 L19.2 6" fill="none" stroke="#fff" stroke-width="2.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="8.6" r="2.2" fill="#fff"/></svg></div>
+    </div>
+    <div class="login-side">
+      <div class="login-box">
+        <div class="brand" style="padding:0"><span class="logo"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.8 6 L12 19.2 L19.2 6" fill="none" stroke="#fff" stroke-width="2.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="8.6" r="2.2" fill="#fff"/></svg></span><div><b>vera</b></div></div>
+        <h2>Entrar</h2>
+        <p class="muted" style="margin:0 0 24px">Use sua conta do Google ou do Facebook. Na primeira vez, sua conta é criada automaticamente.</p>
+        <div class="grid" style="gap:10px">
+          <button class="social" data-login="Google">${GOOGLE}Continuar com Google</button>
+          <button class="social fb" data-login="Facebook">${FACEBOOK}Continuar com Facebook</button>
+        </div>
+        <p class="legal">Ao continuar, você concorda com os Termos de Uso e a Política de Privacidade.</p>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderOnb() {
+  const root = document.getElementById('onb-root');
+  if (!state.auth || !state.onb.open) { root.innerHTML = ''; document.body.style.overflow = state.auth ? '' : 'hidden'; return; }
+  const sc = root.querySelector('.onb')?.scrollTop || 0;
+  const keep = {};
+  ['ocid', 'ocsec', 'oitems'].forEach(k => { const el = document.getElementById(k); if (el) keep[k] = el.value; });
+  root.innerHTML = onbHTML();
+  Object.entries(keep).forEach(([k, v]) => { const el = document.getElementById(k); if (el) el.value = v; });
+  const o = root.querySelector('.onb'); if (o && state.onb.keepScroll) o.scrollTop = sc;
+  state.onb.keepScroll = true;
+  document.body.style.overflow = 'hidden';
+}
+
+function onbAction(a) {
+  const o = state.onb;
+  const step = n => { o.step = n; o.keepScroll = false; render(); };
+  if (a === 'next') { if (o.step === 1) o.skipped.assets = false; if (o.step === 2) o.skipped.pluggy = false; return step(o.step + 1); }
+  if (a === 'back') return step(Math.max(0, o.step - 1));
+  if (a === 'skip') { if (o.step === 1) o.skipped.assets = true; if (o.step === 2) o.skipped.pluggy = true; return step(o.step + 1); }
+  if (a === 'goto-1') return step(1);
+  if (a === 'goto-2') return step(2);
+  if (a === 'close' || a === 'finish') { o.open = false; return go(positions.length || !hasSpend() ? 'visao' : 'gastos'); }
+  if (a === 'finish-meta') { o.open = false; return go('meta'); }
+  if (a === 'restart') { positions = []; state.sample = false; state.pluggy = 'idle'; state.imported = null; o.open = true; o.skipped = {}; return step(0); }
+  if (a === 'sample') { positions = SAMPLE.map(p => ({...p})); state.sample = true; o.open = false; toast('Dados de exemplo carregados'); return go('visao'); }
+  if (a === 'fill') { document.getElementById('ocid').value = '3f9a1c2e-7b4d-4e21-9a0c-5d2b8e6f1a37'; document.getElementById('ocsec').value = 'exemplo-secreto'; document.getElementById('oitems').value = '8b2c4f10-…, 41de9a77-…'; }
+}
+
+function toast(msg) {
+  const r = document.getElementById('toast-root');
+  r.innerHTML = `<div class="toast" role="status">${ic('check')}${esc(msg)}</div>`;
+  clearTimeout(toast.t); toast.t = setTimeout(() => { r.innerHTML = ''; }, 2600);
+}
+
+const tipEl = document.getElementById('tip');
+function tipHTML(el) {
+  const d = el.dataset;
+  if (d.tip) {
+    const {total, rows} = classRows();
+    const r = rows.find(x => x.cls === d.tip);
+    const c = CLS[d.tip];
+    const targetVal = r.target / 100 * total;
+    const lines = [];
+    if (d.tipKind !== 'meta') lines.push(['Atual', `${pct(r.share)} · ${money(r.value)}`]);
+    if (d.tipKind !== 'atual') lines.push(['Meta', `${pct(r.target, 0)} · ${money(targetVal)}`]);
+    if (d.tipKind === 'atual') lines.push(['Meta', pct(r.target, 0)]);
+    if (d.tipKind === 'meta') lines.push(['Atual', pct(r.share)]);
+    const diff = targetVal - r.value;
+    const s = Math.abs(r.dev) <= state.tol ? 'Na faixa de tolerância' : diff > 0 ? `Faltam ${money(diff)} para a meta` : `${money(-diff)} acima da meta`;
+    return `<div class="t"><i style="background:var(--c-${c.id})"></i>${c.name}</div>${lines.map(([a, b]) => `<div class="l"><span>${a}</span><b>${b}</b></div>`).join('')}<div class="l"><span>Desvio</span><b>${pp(r.dev)}</b></div><div class="s">${s}</div>`;
+  }
+  if (d.tipAsset) {
+    const {total, groups} = assetGroups(state.cls);
+    const g = groups.find(x => x.ticker === d.tipAsset);
+    if (!g) return '';
+    const diff = g.target / 100 * total - g.value;
+    return `<div class="t"><i style="background:var(--c-${state.cls})"></i>${esc(g.ticker)}</div><div class="l"><span>Na classe</span><b>${pct(g.share)} · ${money(g.value)}</b></div><div class="l"><span>Meta</span><b>${pct(g.target)}</b></div><div class="s">${Math.abs(g.dev) <= state.tol ? 'Na faixa de tolerância' : diff > 0 ? `Faltam ${money(diff)}` : `${money(-diff)} acima`}</div>`;
+  }
+  if (d.tipCat) {
+    const {t, unc} = catTotals();
+    const c = CATMAP[d.tipCat];
+    const v = c ? t[c.id] : unc;
+    return `<div class="t">${c ? c.name : 'Sem categoria'}</div><div class="l"><span>Setembro</span><b>${brl.format(v)}</b></div>${c && c.avg ? `<div class="l"><span>Sua média</span><b>${brl.format(c.avg)}</b></div><div class="s">${v > c.avg ? `${brl.format(v - c.avg)} acima da média` : `${brl.format(c.avg - v)} abaixo da média`}</div>` : ''}<div class="l"><span>Da renda</span><b>${pct(v / INCOME * 100)}</b></div>`;
+  }
+  return '';
+}
+function showTip(el, x, y) {
+  const html = tipHTML(el);
+  if (!html) return hideTip();
+  tipEl.innerHTML = html; tipEl.hidden = false;
+  const w = tipEl.offsetWidth, h = tipEl.offsetHeight;
+  let left = x + 14, top = y + 16;
+  if (left + w > innerWidth - 8) left = x - w - 14;
+  if (top + h > innerHeight - 8) top = y - h - 12;
+  tipEl.style.left = Math.max(8, left) + 'px'; tipEl.style.top = Math.max(8, top) + 'px';
+}
+function hideTip() { tipEl.hidden = true; }
+const TIP_SEL = '[data-tip],[data-tip-asset],[data-tip-cat]';
+document.addEventListener('pointermove', e => { const el = e.target.closest && e.target.closest(TIP_SEL); if (el) showTip(el, e.clientX, e.clientY); else hideTip(); });
+document.addEventListener('pointerleave', hideTip);
+document.addEventListener('scroll', hideTip, true);
+
+function go(screen) {
+  state.screen = screen;
+  try { history.replaceState(null, '', '#' + screen); } catch (e) {}
+  hideTip(); render(); window.scrollTo(0, 0);
+}
+
+function render() {
+  const a = document.activeElement, id = a && a.id;
+  let sel = null; try { sel = a.selectionStart; } catch (e) {}
+  document.getElementById('view').innerHTML = gate(state.screen) || (screens[state.screen] || screens.visao)();
+  const navKey = state.screen === 'classe' ? 'visao' : state.screen;
+  document.querySelectorAll('.nav').forEach(n => n.setAttribute('aria-current', n.dataset.go === navKey ? 'page' : 'false'));
+  const u = txs.filter(t => !t.cat).length;
+  const c = document.getElementById('unc-count'); c.textContent = u || ''; c.hidden = !u;
+  if (id) { const el = document.getElementById(id); if (el && el.closest('#view')) { el.focus(); try { if (sel != null) el.setSelectionRange(sel, sel); } catch (e) {} } }
+  renderLogin();
+  renderOnb();
+}
+
+document.addEventListener('click', e => {
+  if (e.target.closest('#modal-root')) return;
+  const el = e.target.closest('[data-login],[data-logout],[data-export],[data-onb],[data-add-type],[data-go],[data-set],[data-open-class],[data-step],[data-tol],[data-add],[data-del],[data-aporte-quick],[data-flex],[data-fix],[data-pluggy-demo],[data-pluggy-reset]');
+  if (!el) return;
+  const d = el.dataset;
+  if (d.login) { state.auth = true; state.user = {name:'Lucas', provider:d.login}; toast(`Você entrou com ${d.login}`); return render(); }
+  if (el.hasAttribute('data-logout')) { state.auth = false; hideTip(); toast('Você saiu da sua conta'); return render(); }
+  if (d.export) { const f = d.export === 'ativos' ? 'vera-carteira.xlsx' : 'vera-transacoes-2026-09.xlsx'; return toast(`${f} gerada (no protótipo o download fica desativado)`); }
+  if (d.onb) return onbAction(d.onb);
+  if (d.addType) return openAdd(null, {type:d.addType});
+  if (d.go) return go(d.go);
+  if (d.set) { state[d.set] = d.val; return render(); }
+  if (d.openClass) { state.cls = d.openClass; return go('classe'); }
+  if (d.step) { classTargets[d.step] = Math.max(0, Math.min(100, (classTargets[d.step] || 0) + Number(d.d))); return render(); }
+  if (d.tol) { state.tol = Math.max(0, Math.min(20, state.tol + Number(d.tol))); return render(); }
+  if (d.add !== undefined) { hideTip(); return openAdd(d.add || null); }
+  if (d.del) { const p = positions.find(x => x.id === Number(d.del)); positions = positions.filter(x => x.id !== Number(d.del)); toast(`${p.ticker} removido`); return render(); }
+  if (d.aporteQuick) { state.aporte = Number(d.aporteQuick); return render(); }
+  if (d.flex) { CATMAP[d.flex].flex = !CATMAP[d.flex].flex; return render(); }
+  if (d.fix) {
+    const t = txs.find(x => x.id === Number(d.fix));
+    const cat = document.getElementById('fx-' + t.id).value;
+    if (!cat) return toast('Escolha uma categoria primeiro');
+    const always = document.getElementById('rule-' + t.id).checked;
+    const who = t.m.split('·')[1]?.trim();
+    let n = 0;
+    txs.forEach(x => { if (!x.cat && (x.id === t.id || (always && who && x.m.includes(who)))) { x.cat = cat; x.how = always ? 'sua regra' : 'você'; n++; } });
+    toast(always ? `Regra criada: ${who} → ${CATMAP[cat].name} (${n} ${n > 1 ? 'transações' : 'transação'})` : `Categorizada como ${CATMAP[cat].name}`);
+    return render();
+  }
+  if (el.hasAttribute('data-pluggy-demo')) { document.getElementById('cid').value = '3f9a1c2e-7b4d-4e21-9a0c-5d2b8e6f1a37'; document.getElementById('csec').value = 'exemplo-secreto'; document.getElementById('items').value = '8b2c4f10-…, 41de9a77-…'; return; }
+  if (el.hasAttribute('data-pluggy-reset')) { state.pluggy = 'idle'; return render(); }
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.getElementById('modal-root').innerHTML) { document.getElementById('modal-root').innerHTML = ''; document.getElementById('modal-root').onclick = null; return; }
+  const row = e.target.closest && e.target.closest('[data-open-class]');
+  if (row && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); state.cls = row.dataset.openClass; go('classe'); }
+});
+
+document.addEventListener('input', e => {
+  const el = e.target;
+  if (el.closest('#modal-root')) return;
+  const d = el.dataset;
+  if (d.classTarget) { classTargets[d.classTarget] = Math.max(0, Math.min(100, Number(el.value) || 0)); return render(); }
+  if (d.assetTarget) {
+    const {groups} = assetGroups(state.cls);
+    if (!assetTargets[state.cls]) assetTargets[state.cls] = assetTargetsFor(state.cls, groups.map(g => g.ticker));
+    assetTargets[state.cls][d.assetTarget] = Math.max(0, Math.min(100, Number(el.value) || 0));
+    return render();
+  }
+  if (el.hasAttribute('data-tol-input')) { state.tol = Math.max(0, Math.min(20, Number(el.value) || 0)); return render(); }
+  if (el.hasAttribute('data-aporte')) { state.aporte = Number(el.value) || 0; return render(); }
+  if (el.hasAttribute('data-goal')) { state.goal = Number(el.value); return render(); }
+});
+
+document.addEventListener('change', e => {
+  const el = e.target;
+  if (el.closest('#modal-root')) return;
+  if (el.dataset.reclass) { const p = positions.find(x => x.id === Number(el.dataset.reclass)); p.cls = el.value; toast(`${p.ticker} agora em ${CLS[p.cls].name}`); return render(); }
+  if (el.dataset.qty) { const p = positions.find(x => x.id === Number(el.dataset.qty)); p.qty = Math.max(0, Number(el.value) || 0); return render(); }
+  if (el.dataset.done) { state.done[el.dataset.done] = el.checked; return render(); }
+  if ((el.id === 'ofx' || el.id === 'onb-ofx') && el.files[0]) { state.imported = el.files[0].name; return render(); }
+});
+
+document.addEventListener('submit', e => {
+  if (!['pluggy-form', 'onb-pluggy-form'].includes(e.target.id)) return;
+  e.preventDefault();
+  state.pluggy = 'testing'; render();
+  setTimeout(() => { state.pluggy = 'ok'; render(); toast('2 bancos conectados pelo Meu Pluggy'); }, 900);
+});
+
+const start = (location.hash || '').slice(1);
+if (screens[start]) state.screen = start;
+render();
+</script>
+
+</body>
+</html>
