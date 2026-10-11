@@ -43,7 +43,7 @@ Registro das decisões tomadas na fase de design, com o motivo de cada uma. Deci
 
 | Decisão | Motivo |
 | --- | --- |
-| Um ambiente só (produção), com AWS CDK no formato do GetCart | Projeto open source sem receita: um ambiente de dev dobraria o custo de infraestrutura sem necessidade. A validação acontece localmente e na CI. |
+| Dois ambientes (dev e prod) com AWS CDK no formato do GetCart; dev desligado na versão hospedada | O projeto fica completo para quem clonar, sem custo de um ambiente de dev que a Revtriever não usa no dia a dia. `deploy-dev` só roda por disparo manual. |
 | Login só social (Google e Facebook) | Não guardar senha própria reduz a superfície de ataque e o atrito no cadastro. |
 | Login separado da landing page | O login fica só login; a explicação do produto vai para a LP. |
 | Onboarding com duas etapas opcionais | Ativos (~5 min) e bancos (~15 min), cada uma explicando por que existe; quem pula cai em estados vazios que mostram o próximo passo. |

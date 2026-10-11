@@ -39,12 +39,11 @@ A Vera usa a mesma stack, os mesmos padrões de projeto e as mesmas skills de ag
 
 ## Ambientes
 
-Diferente do GetCart, a Vera tem **um ambiente só: produção**. Não existe ambiente de dev.
+Dois ambientes, como no GetCart: **dev** e **prod**. O de dev existe no código e nos workflows, mas fica **desligado** na versão hospedada pela Revtriever: ninguém paga por ele até alguém decidir ligar.
 
-- Infraestrutura em AWS CDK, do mesmo jeito que o GetCart, mas com uma única stack de produção.
-- Uma branch principal (`main`); sem branch `development` e sem o fluxo de mergeback.
-- CI com um único workflow de deploy (`deploy-prod`); os workflows `deploy-dev` e `mergeback-development` do GetCart não são copiados.
-- Validação antes de produção acontece localmente (Docker Compose) e nos testes da CI.
+- Infraestrutura em AWS CDK no mesmo formato do GetCart, com as stacks `vera-*-dev` e `vera-*-prod`.
+- `deploy-prod` roda a partir da `main` (depois do CI verde); `deploy-dev` existe, mas só roda por disparo manual.
+- Quem clonar o projeto encontra os dois ambientes prontos para usar na própria conta.
 
 ## Convenções gerais
 
